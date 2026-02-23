@@ -1,3 +1,4 @@
+ **How the Actor Model Strengthens the Functional Core–Imperative Shell Architecture in C++**
 ## Introduction 
 
 This post belongs to the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
