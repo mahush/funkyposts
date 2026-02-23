@@ -93,7 +93,7 @@ Of course, this modular design comes with some benefits, let's take a closer loo
 
 Actually, there is one more interesting benefit that goes beyond modularity: The actor-based *functional core - imperative shell* design is able to bridge functional with non-functional code within the same application. Because actors interact only through messages, a shell-core pair implemented as an actor can naturally integrate with another actor implemented in a traditional OOP design. That’s really great news, as this means you can utilize functional programming practically for a subset of an application without any compromise. So if you want to start slowly for whatever reason, you can!
 
-## Summary
+## Conclusions
 
 It turns out that the actor model is perfectly suited for implementing interconnected core–shell pairs. Meaning also in the context of the *functional core – imperative shell* architecture, it's a great tool for achieving clear separation of concerns.
 
