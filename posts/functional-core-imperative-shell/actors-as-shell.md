@@ -37,9 +37,17 @@ class InputActor : public Actor<InputActor> {
 		  direction_pub_{create_pub(std::move(direction_topic))} {}
 		  
 	private:
-		void onKeyEvent(Key key) {
-			if (auto direction_msg = keyToDirectionMsg(key)) {
-				direction_pub_->publish(*direction_msg);
+		void InputActor::processInputs() {
+			while (auto ch = stdin_reader_->tryTakeChar()) {
+			    auto [key, new_state] = tryParseKey(*ch, key_parser_state_);
+			    key_parser_state_ = new_state;
+
+			    if (key) {
+				    auto direction_msg = tryConvertKeyToDirectionMsg(*key);
+					if (direction_msg) {
+				      direction_pub_.publish(*direction_msg);
+					}
+			    }
 			}
 		}
 		
