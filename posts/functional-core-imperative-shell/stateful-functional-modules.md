@@ -12,29 +12,24 @@ So, this post explores how pure functions operating on a shared state can form a
 
 ## The Design Idea
 
-The basic idea of a stateful functional module is to group pure functions that all depend on the same shared state and this state. This might sound like a no brainer, but actually there are a few subtle details to discover ;-)
- 
-Let’s dive into some code from *funkysnakes* and this way point to the relevant details.
+The basic idea of a stateful functional module is to group pure functions that all depend on the same shared state together with their state. This might sound like a no brainer, but actually there are a few subtle details to discover here ;-)
 
-Snakes are controlled via the arrows keys. But not the game loop and key events happen asynchronous, so at the beginning of each game loop tick the snake actual movement direction is updated based on the key events since the last game loop tick. This update logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented in terms of filtering arrow key press events such that any added one is either dropped or somehow adjusts the queue of earlier added ones.
+Let’s dive into some code from *funkysnakes* and spot these subtle details along the way.
 
-Of course, this logic requires state that basically is a queue of directions per player:
+Snakes are controlled via the arrows keys. But the game loop and key events are asynchronous, so at the beginning of each game loop tick each snake's movement direction is updated based on  new key events since the last game loop tick. This "direction update" logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented in terms of filtering key press events.
+
+No surprise, this logic requires state that is a queue of directions per player:
 
 ```cpp
-  // In direction_command_filter.hpp (module level)
-  namespace direction_command_filter {
-    // Internal type - not exposed to domain
-    using PerPlayerDirectionQueue = std::map<PlayerId, std::deque<Direction>>;
-
-    // Opaque state wrapper
-    struct State {
-      PerPlayerDirectionQueue queues;  // Implementation detail
-    };
-  }
+namespace direction_command_filter {
+struct State {
+	using PerPlayerDirectionQueue = std::map<PlayerId, std::deque<Direction>>;
+	PerPlayerDirectionQueue queues;
+};
+}
 ```
 
-
-The `direction_command_filter` module's interface provides the function `tryAdd` that  simply puts another direction command (basically a key press event) into to filter and `tryConsumeNext` which takes the next from the the queue. Both methods may adjust the state:
+The `direction_command_filter` module's interface provides the function `tryAdd` that simply adds another direction command (basically a key press event) to the filter. The function `tryConsumeNext` takes the next direction that passed the filter out of the queue. Both methods may adjust the state:
 
 ```c++
 namespace direction_command_filter {
@@ -45,41 +40,58 @@ std::tuple<State, PerPlayerDirection> try_consume_next(State state);
 }
 ```
 
-As pointed out in [[where-to-put-the-state]], the state must be passed in and returned by the pure functions here. In turn the state must be stored in the shell, wich is the `GameEngineActor` here:
+As pointed out in [[where-to-put-the-state]], the pure functions are called by the shell passing in the current state as data and updating that state with the returned data. So all the state is handled by the `GameEngineActor` which here means the module state `direction_command_filter::State` as well as the general state `PerPlayerSnakes`:
 
 ```c++
+namespace shell {
 struct GameState {
 	...
+	PerPlayerSnakes snakes;
 	direction_command_filter::State direction_command_filter_state;
-	...
 };
   
 class GameEngineActor : public Actor<GameEngineActor> {
 	...
-	private:
-		GameState game_state_;
-		...
+	GameState game_state_;
 };
+}
 ```
 
+The `GameEngineActor` then calls `try_add` and `try_consume_next`:
 
-- self contained
-- have their internal state 
-- the namespace caries the module name
-- the state struct is just called State
-- the client side should not care about internals so the state is referred to as module_name::State module_name_state
-- Lifting module state to domain level VS Module internal state has no meaning outside the module, so clients treat it like a black box, meaning they manage the state in terms of passing and updating but they don‘t interpret it
+```c++
+state_.direction_command_filter_state = direction_command_filter::try_add(state_.direction_command_filter_state, state_.snakes, new_command);
 
-- This state might be on domain level or module internal depending on its level of abstraction. 
--  the nature of the module internal state and in turn clarifies when and how to utilize it.
-- Think of a usual class in OOP terms as equivalent. Thus, it’s also reasonable to refactor a class into a functional module
+state_.direction_command_filter_state = direction_command_filter::try_consume_next(state_.direction_command_filter_state);
+```
 
-- Module internal state promotes encapsulation. This is the equivalent of a class in an OOP world.
-- Clarifying that the module is stateful while it’s pure functions are stateless
+All right, as advertised, now a few insights:
+
+*Self Contained Module*: The code in the `direction_command_filter` namespace make the module. By defining its functions and internal state it's self contained and as such can be unit tested in isolation. 
+
+*Namespace Scope*: Note that the namespace gives scope to the functions exactly as a class name would do otherwise. In turn the module boundaries are clearly visible at client side calls. Also it's sufficient to call the module's state simply `State`.  
+
+*Effective Encapsulation*: The module's state is only modified by the module's functions itself. This is the essence of encapsulating state as provided by private class member variables. Please note that the shell managing the persistence of this module internal state is not contradicting as the shell only applies modification created by the module's functions. The shell does not modify state on its own behalf.
+
+*Testability*: Although the state is encapsulated it's not hidden. When calling the module's pure functions we can easily pass arbitrary state in and observe the resulting state. So testing works the same as described in [[stateful-functional-modules]], which means stateful modules re perfectly testable. I love it.
+
+*Class Equivalent*: 
+Generally following this pattern a stateful class can be converted into a stateful functional module. I feel this is especially helpful as it bridges between the object oriented and the functional world. So when transitioning into functional programming just start with taking your modules with you.
+
+*Module Internal State vs Domain Level State*: Notice that `try_add` receives two different kinds of state: `direction_command_filter::State` (module internal) and `PerPlayerSnakes` (domain level). 
+
+Module internal state is data that only the `direction_command_filter` functions understand. In contrast the domain level state has meaning across the entire game domain, so many parts of the system understand what a snake is and operates on this state. The filter module needs to read it (to check current direction) but doesn't own it.
+
+This differentiation is quite important as the level defines which functions can interpret the state. The key point here is, domain logic functions must not directly operate on and thus not interpret module internal state.
 
 ## Summary 
 
+- The module is stateful while it’s pure functions are stateless
 
+
+
+Follow up:
+*Lifting Module State on Domain Level*: As just clarified domain level logic must not interpret module internal state, but here is more wiggle room than you may think. Actually in context of the shell we can provide adapters that lift module internal state on domain level. So the idea is to explicitly convert from module internal state to domain level state as read only representation that actually has meaning in domain context. This way we create an higher level abstraction of the module internal state on which domain level logic can operate on.
 
 ---
 AI Summary:
@@ -94,8 +106,7 @@ AI Summary:
 
   1. Module Owns Its State Type
 
-  - Internal state types (like PerPlayerDirectionQueue) should be defined within the module, not at doma
-in level
+  - Internal state types (like PerPlayerDirectionQueue) should be defined within the module, not at domain level
   - Wrap internal representation in a module-specific State struct
   - Domain code should never directly access or understand the internal structure
 
@@ -124,8 +135,7 @@ in level
   - Type name: Use fully qualified module namespace (direction_command_filter::State)
   - Variable name: Use module prefix (direction_command_filter_state)
 
-  This immediately communicates: "This is not domain-level state with semantic meaning—this is internal 
-state that belongs to a specific module."
+  This immediately communicates: "This is not domain-level state with semantic meaning—this is internal state that belongs to a specific module."
 
   Anti-pattern:
   struct GameState {
@@ -144,8 +154,7 @@ state that belongs to a specific module."
   - State validation
   - State transformations
 
-  Domain code should never directly construct or manipulate module state—only pass it through module fun
-ctions.
+  Domain code should never directly construct or manipulate module state—only pass it through module functions.
 
   Example:
   // Module handles lazy initialization internally
@@ -157,8 +166,7 @@ ctions.
 
   4. Separation of Concerns in Domain Operations
 
-  Domain-level operations (like addPlayer) should only handle domain concerns (snakes, scores), not modu
-le-internal state.
+  Domain-level operations (like addPlayer) should only handle domain concerns (snakes, scores), not module-internal state.
 
   Before (coupled):
   std::tuple<PerPlayerSnakes, PerPlayerScores, PerPlayerDirectionQueue>
@@ -200,8 +208,7 @@ le-internal state.
   4. Module functions handle their own state lifecycle
   5. Domain operations don't initialize or manipulate module state directly
 
-  This architectural pattern allows us to maintain functional programming benefits (explicit state) whil
-e preserving object-oriented encapsulation principles (information hiding, clear boundaries).
+  This architectural pattern allows us to maintain functional programming benefits (explicit state) while preserving object-oriented encapsulation principles (information hiding, clear boundaries).
 
 --
 
@@ -213,3 +220,7 @@ OR
 --- 
 
 and also what their state means from a client’s point of view.
+
+- Lifting module state to domain level VS Module internal state has no meaning outside the module, so clients treat it like a black box, meaning they manage the state in terms of passing and updating but they don‘t interpret it
+
+- This state might be on domain level or module internal depending on its level of abstraction. 
