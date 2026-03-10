@@ -1,4 +1,6 @@
-## Introduction
+**From object oriented to functional programming** 
+
+## Some Background
 
 In the first years of my career I aimed for deeply internalizing OOP as provided by C++98. What I knew about programming at that time brought me to the conclusion that writing hight quality code is just a matter of being fluent in the language, the object oriented paradigm and the design patterns around it. So, I was practicing, and while the years have been passing by and I my ability to write idiomatic objects oriented code improved I began to see its limits.
 
@@ -15,24 +17,25 @@ Mocks must implement the same interface as the real components they replace. The
 
 *State encapsulated within a class is hard to modify by a test*: In traditional OOP, private mutable state is fully hidden, so tests cannot set it up directly. A test that needs the object in a specific internal configuration must drive the state there indirectly through the public interface, which often requires multiple method calls, complex sequences, and mocks. This indirect setup adds unnecessary complexity and makes tests more brittle.
 
-Kudos to a blog post called „Mocking is code smell“ that helped me a lot in better understanding these issue and how functional programming would allow to do better. This really catched me. My interest in functional programming was born. 
+Kudos to a blog post called „Mocking is code smell“ that helped me a lot in better understanding these issue and how functional programming would allow to do better. This really caught me. My interest in functional programming was born. 
 
 When looking at OOP from a FP perspective one more issue got apparent to me, that is the concept of inheritance.
 
+Looking at OOP from an FP perspective also made another long‑standing issue clear: inheritance.
+
 *Inheritance creates tight coupling within the hierarchy*:
-Once a class hierarchy is established, the base class interface becomes very difficult to change. Every derived class relies on it, so even small adjustments propagate through the entire hierarchy. All subclasses must be updated and there’s a high risk of breaking behavior in places far away from the original change. This makes class hierarchies rigid and expensive to evolve.
+Once a class hierarchy is established, the base class interface becomes almost impossible to change without impacting every derived class. Even small adjustments propagate through the hierarchy, making class hierarchies rigid and expensive to evolve.
 
 So, these were my pain points and I was primed to find solutions in functional programming and so I did.
 
-## functional programming to the rescue 
+## FP to the Rescue 
 
-The game‑changing key idea in functional programming is the pure function. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. When you apply this style to your business logic, things become clean and predictable. This makes testing straightforward, you call the function with test data and check the result. No hidden state means no complicated setup, and no implicit dependencies mean you don’t need objects standing in for other objects.
+The game‑changing key idea in functional programming is the pure function. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. When you apply this style to your business logic, things become clean and predictable. 
 
-You may need to supply a function as an argument when testing. But this “mock” is just a single, stateless function, not an entire class with multiple methods and internal state. The complexity drops dramatically.
+*Testability improves*: This makes testing straightforward, you call the function with test data and check the result. No hidden state means no complicated setup, and no implicit dependencies mean you don’t need objects standing in for other objects. You may need to supply a function as an argument when testing. But this “mock” is just a single, stateless function, not an entire class with multiple methods and internal state. The complexity drops dramatically.So the takeaway is this: when you structure your logic as pure functions, the heavy mocking simply disappears.
 
-So the takeaway is this: when you structure your logic as pure functions, the heavy mocking simply disappears.
+*Decoupling decreases*: Of course also the class hierarchy coupling goes away with FP, still functionality is build on top of each other, but when this essentially means composing pure functions all dependencies are only on function signature level which results again in dropping complexity.
 
-Of course also the class hierarchy coupling goes away with FP, still functionality is build on top of each other, but when this essentially means composing pure functions all dependencies are only on function signature level which leads again in dropping complexity.
-### Outlook 
+## How to get started 
 
 Sure thing, learning a new programming paradigm takes sustained effort, and how much depends on your learning path. If you’re coming from an OOP‑heavy, C++‑style background like I did, I might speak your language well enough to make functional programming feel more approachable. My original motivation wasn’t to teach FP. I simply wanted to figure out how to apply functional ideas effectively in real‑world C++ code. After exploring this for a while and finding techniques that work for me, it feels natural to share and discuss them. This blog is my attempt to build a bridge between traditional C++ and functional programming by illustrating practical FP patterns in modern C++. Hopefully this helps other C++ developers go more functional while inviting constructive feedback on my own understanding.
