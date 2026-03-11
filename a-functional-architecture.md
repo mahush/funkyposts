@@ -1,22 +1,17 @@
 ## Introduction
+Functional programming is about utilizing pure functions. By putting the business logic into these functions, which by definition are free of side effects, many things become easier (e.g. testing as described in [[P01 - From object oriented to functional programming]]). However, at some point any application must have side effects like handling IO, maintaining internal state, or spawning timers. In other words: an application without any effect on the outside world would be quite useless. So you might have already noticed the elephant in the room: how can pure functions eventually cause side effects?
 
-Functional programming is about utilizing pure functions. So by putting the business logic into these functions that per definition don’t have side effects many things are getting much easier (e.g. testing as described in [[P01 - From object oriented to functional programming]]). However at some point any application must have side effects like handling IO, maintaining internal state or spawning In other words: An application without any effect to the outside world would be quite useless. So you might have already noticed the elephant in the room: How to enable pure functions in having side effects eventually? Putting this question in a concrete example: How can a pure function write a log message?
+## The Elephant
+The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for themselves. Therefore, they return data describing what should happen, and their caller performs the effects. So, effect related behavior is still happening as usual it’s just places on the call side. For example, a pure function decide on creating some log message, and the caller connects to the outside world by putting it to stderr. Let’s stay on this higher level and clarify what that means architecturally.
 
-## The Elephant 
+## Functional Core - Imperative Shell 
+The *functional core – imperative shell* concept formalizes this nicely: an application is split into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects). The same widely known idea is also called *Ports and Adapters* or *Sandwich* architecture.
 
-Actually the high level answer is surprisingly simple: These pure functions have a caller that is handling the side effects based on their results, meaning the pure function creates the message its caller then puts it to stderr. For this post, let’s stay on the higher level and clarify what it means architecturally. 
+*Imperative Shell*: For a C++ developer this part is familiar. Here anything effectful is allowed: using the standard library to write to stderr, using protocol stacks to communicate with other systems, mutating private members to maintain state, or setting up concurrency. The only constraint: use this freedom solely for handling side effects. Don’t implement business logic here.
 
+*Functional Core*: Every business decision is encoded in pure functions. These functions together form the core. You can compose them freely, and compositions remain pure. This lets you build various layers of abstraction and organize the business logic cleanly.
 
-## A Functional Architecture
+One important design aspect I want to highlight here: the core is self‑contained. So while the shell depends on the core, the core is independent of the shell. This enables testing the core in complete isolation from any shell.
 
-The *functional core - imperative shell* concept is clarifying exactly this by separating an application into two parts, the functional core that represents all the pure functions that implement the business logic and the imperative shell that actually calls the core and handles side effects. The same idea is also known as *Ports and Adapters* or *Sandwhich*. 
-
-*Imperative Shell*: So, for a C++ developer the shell is something familiar. There everything is allowed to happen, you can utilize traditional C++ at it’s best, e.g. utilize the standard library to write to stderr, make use of various protocol stacks to communicate with other systems, mutate private class members to maintain state or even setup the execution environment to handle concurrency. The only constraint here is: Use this freedom for handing side effects only. Don’t implement any business logic here as that’s what the functional core is for. 
-
-*Functional Core*:  Every decision on business level must be encoded in pure functions. All these functions then form the core. You are free to compose them as you like, as any composition of pure functions is itself a pure function as well. So you can structure the core into different levels of abstraction and this way organize the overall business logic nicely.
-
-One important design aspect I want to highlight is that the core is self contained, meaning the shell depends on the core but not the other way around. This is especially important as it allows testing of the core in isolation of the any shell.
-
-## Summary 
-
-That’s basically already it. Now you have an idea where the borderline lies and how the two pieces separated by it look like on abstract level. You want it more concrete? Check my post [[P03 - Actors as Shell]] where I dive deep into a real world code example that clarifies this idea on coding level.
+## Summary
+That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Check my post [[P03 - Actors as Shell]] where I dive into a real‑world code example hitting many interesting details.
