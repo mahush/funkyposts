@@ -1,5 +1,5 @@
 
-### Introduction
+# Introduction
 
 This post belongs to the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
 
@@ -7,7 +7,7 @@ Pure functions are at the heart of functional programming. So, if you want to go
 
 I found the *functional core - imperative shell* architecture especially helpful to sort things out. So this post shows what state handling can look like when following this architectural idea.
 
-### The Design Idea
+# The Design Idea
 
 Here's a quick reminder of the *functional core - imperative shell* architecture: It requires code to live either in the shell or in the core. The shell handles side effects like IO, state or timers in an imperative way. The core contains the business logic implemented as pure functions.
 
@@ -56,7 +56,7 @@ Fourth, it's interesting to take a closer look at how shell and core perceive st
 
 So now that we have a clear picture about the mechanics at work, we can reflect on the advantages we get here.
 
-### Benefits
+# Benefits
  
 I really like this design for its *transparency*. All state lives at the top level, visible and easy to understand. You won't be surprised by hidden state affecting behavior. In contrast, deeply nested OOP classes often hide state across multiple layers.
 
@@ -64,7 +64,7 @@ There's also high *flexibility* in which state can be processed by which functio
 
 And another great benefit of this design is that it improves *testability* significantly. In my experience testing stateful code is usually complex. To test a specific behavior, you first need to get your software into the right state. This means using the regular API, test-specific APIs, or mocks. But with pure functions, you simply pass in whatever state you need. It's as simple as it can get. Testing the shell itself is straightforward too. It's just an integration test independent of any specific logic.
 
-### Summary and Outlook
+# Summary and Outlook
  The *functional core* defines pure functions and the data structures they operate on, while the *imperative shell* invokes these functions, passing in the current state as data and updating that state with the returned data.
 
  This separation keeps the core self‑contained and lets the shell handle persistence. Together, they create a transparent, flexible and testable system where pure logic and controlled mutation coexist cleanly.
