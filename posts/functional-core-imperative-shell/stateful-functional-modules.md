@@ -34,9 +34,9 @@ The `direction_command_filter` module's interface provides the function `tryAdd`
 ```c++
 namespace direction_command_filter {
 
-State try_add(State state, const PerPlayerSnakes& snakes, const DirectionCommand& cmd);
+State tryAdd(State state, const PerPlayerSnakes& snakes, const DirectionCommand& cmd);
 
-std::tuple<State, PerPlayerDirection> try_consume_next(State state);
+std::tuple<State, PerPlayerDirection> tryConsumeNext(State state);
 }
 ```
 
@@ -57,12 +57,14 @@ class GameEngineActor : public Actor<GameEngineActor> {
 }
 ```
 
-The `GameEngineActor` then calls `try_add` and `try_consume_next`:
+The `GameEngineActor` then calls `tryAdd` and `tryConsumeNext`:
 
 ```c++
-state_.direction_command_filter_state = direction_command_filter::try_add(state_.direction_command_filter_state, state_.snakes, new_command);
+state_.direction_command_filter_state = direction_command_filter::tryAdd(state_.direction_command_filter_state, state_.snakes, new_command);
 
-state_.direction_command_filter_state = direction_command_filter::try_consume_next(state_.direction_command_filter_state);
+auto [new_state, direction] =
+direction_command_filter::tryConsumeNext(state_.direction_command_filter_state);
+state_.direction_command_filter_state = new_state;
 ```
 
 All right, as advertised, now a few insights on this design:
@@ -77,7 +79,7 @@ All right, as advertised, now a few insights on this design:
 
 *Testability*: Although the state is encapsulated it's not hidden. When calling the module's pure functions we can easily pass arbitrary state in and observe the resulting state. So testing works the same as described in [[where-to-put-the-state]], which means stateful modules are perfectly testable. I love it.
 
-*Module Internal State vs Domain Level State*: Notice that `try_add` receives two different kinds of state: `direction_command_filter::State` (module internal) and `PerPlayerSnakes` (domain level). Module internal state is data that only the `direction_command_filter` functions understand. In contrast the domain level state has meaning across the entire game domain, so many parts of the system understand what a snake is and operates on this state. The filter module needs to read it (to check current direction) but doesn't own it. This differentiation is quite important as the level defines which functions can interpret the state. The key point here is: domain logic functions must not directly operate on and thus not interpret module internal state. Therefore the internal state's name on domain level is just `direction_command_filter_state` which only indicates that it belongs to the `direction_command_filter` module but effectively hides its internals.
+*Module Internal State vs Domain Level State*: Notice that `tryAdd` receives two different kinds of state: `direction_command_filter::State` (module internal) and `PerPlayerSnakes` (domain level). Module internal state is data that only the `direction_command_filter` functions understand. In contrast the domain level state has meaning across the entire game domain, so many parts of the system understand what a snake is and operates on this state. The filter module needs to read it (to check current direction) but doesn't own it. This differentiation is quite important as the level defines which functions can interpret the state. The key point here is: domain logic functions must not directly operate on and thus not interpret module internal state. Therefore the internal state's name on domain level is just `direction_command_filter_state` which only indicates that it belongs to the `direction_command_filter` module but effectively hides its internals.
 
 Sharing these different perspectives on that design should help you to get a deeper understanding of the implementation details and their consequences such that you see clearly how to apply this pattern by yourself. 
 ## Summary 
