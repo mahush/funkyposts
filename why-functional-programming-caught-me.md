@@ -1,13 +1,11 @@
-**From object oriented to functional programming** 
+*From object oriented to functional programming*
 
-## Some Background
-
+# Some Background
 In the first years of my career I aimed for deeply internalizing OOP as provided by C++98. What I knew about programming at that time brought me to the conclusion that writing hight quality code is just a matter of being fluent in the language, the object oriented paradigm and the design patterns around it. So, I was practicing, and while the years have been passing by and I my ability to write idiomatic objects oriented code improved I began to see its limits.
 
 To better understand my journey here, let me share another complementing learning path of mine that is about testing. The first embedded projects I joined didn’t had any automatic tests. Instead testing was done manually by just using the device in terms of observing its behavior and pressing its buttons. We developers did so by ourselves to see if the change we implemented worked and a dedicated test department did so all day to „ensure“ the device generally behaves as expected. In a later embedded project two colleagues were practicing unit testing for their production code. With my own experience in mind on how many regressions we had and how much effort it was to fix them in coordination with the test department, I realized the potential of automated tests. So, I started writing unit tests myself. At that time the OOP patterns I was applying became limiting.
 
-## The Limits of OOP 
-
+# The Limits of OOP 
 When diving into unit testing an essential learning was: If you want to unit test your code, you actually must write your code to be unit testable. In short, you must be able to execute smaller parts of your code in isolation. That is applying the „separation of concerns“ principle, which provides the units for testing. And to actually run modules independently, dependency injection comes into play. Meaning if one module depends on another it is passed in, normally as constructor argument. In a unit test where a single module should run in isolation all dependent modules need to be mocked. Instead of real dependencies, the test passes its mocks as constructor arguments.
 
 *No testing without mocking*: Technically that mocking approach works well, unit testing is enabled. But actually it comes at a high price. The mocks need to be written and maintained which increases test specific code and in turn leads to higher test complexity. And we should not neglect it as only if all the mocks are implemented correctly the test is helpful.
@@ -28,14 +26,14 @@ Once a class hierarchy is established, the base class interface becomes almost i
 
 So, these were my pain points and I was primed to find solutions in functional programming and so I did.
 
-## FP to the Rescue 
-
+# FP to the Rescue 
 The game‑changing key idea in functional programming is the pure function. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. When you apply this style to your business logic, things become clean and predictable. 
 
 *Testability improves*: This makes testing straightforward, you call the function with test data and check the result. No hidden state means no complicated setup, and no implicit dependencies mean you don’t need objects standing in for other objects. You may need to supply a function as an argument when testing. But this “mock” is just a single, stateless function, not an entire class with multiple methods and internal state. The complexity drops dramatically.So the takeaway is this: when you structure your logic as pure functions, the heavy mocking simply disappears.
 
 *Decoupling decreases*: Of course also the class hierarchy coupling goes away with FP, still functionality is build on top of each other, but when this essentially means composing pure functions all dependencies are only on function signature level which results again in dropping complexity.
 
-## How to get started 
+# How to get started 
+Sure thing, learning a new programming paradigm takes sustained effort, and how much depends on your learning path. If you’re coming from an OOP‑heavy, C++‑style background like I did, I might speak your language well enough to make functional programming feel more approachable. My original motivation wasn’t to teach FP. I simply wanted to figure out how to apply functional ideas effectively in real‑world C++ code. After exploring this for a while and finding techniques that work for me, it feels natural to share and discuss them. The funkyposts blog is my attempt to build a bridge between traditional C++ and functional programming by illustrating practical FP patterns in modern C++. Hopefully this helps other C++ developers go more functional while inviting constructive feedback on my own understanding.
 
 Sure thing, learning a new programming paradigm takes sustained effort, and how much depends on your learning path. If you’re coming from an OOP‑heavy, C++‑style background like I did, I might speak your language well enough to make functional programming feel more approachable. My original motivation wasn’t to teach FP. I simply wanted to figure out how to apply functional ideas effectively in real‑world C++ code. After exploring this for a while and finding techniques that work for me, it feels natural to share and discuss them. This blog is my attempt to build a bridge between traditional C++ and functional programming by illustrating practical FP patterns in modern C++. Hopefully this helps other C++ developers go more functional while inviting constructive feedback on my own understanding.
