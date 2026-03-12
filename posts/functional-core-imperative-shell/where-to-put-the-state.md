@@ -58,7 +58,7 @@ So now that we have a clear picture about the mechanics at work, we can reflect 
 
 # Benefits
  
-I really like this design for its *transparency*. All state lives at the top level, visible and easy to understand. You won't be surprised by hidden state affecting behavior. In contrast, deeply nested OOP classes often hide state across multiple layers.
+I really like this design for its *transparency*. All state appears at the top level, making it obvious that state exists. State changes are explicit and easy to follow, rather than hidden deep inside objects as is often the case in nested OOP designs.
 
 There's also high *flexibility* in which state can be processed by which function. Here the `snakes` sub-state is mutated, but depends on the `board` and the currently existing `food_items`. As you can see, whatever data a pure function needs can simply be passed in by the shell.
 
