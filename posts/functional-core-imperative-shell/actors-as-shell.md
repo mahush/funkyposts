@@ -12,7 +12,31 @@ How does this principle apply in the context of the *functional core - imperativ
 
 So, splitting the core into modules is straightforward as this is mostly about grouping pure functions. But how do we split the shell into pieces? This is where the actor model fits perfectly, thanks to its natural ability to manage side effects. So, the simple yet powerful idea is to combine the actor model with the *functional core - imperative shell* architecture and implement shells as actors. This allows multiple shells to coexist cleanly while still interacting easily with one another. The application then becomes a collection of shell-core pairs, meaning each shell has its own core. Actually, it makes even more sense to put it the other way around: the business logic that is implemented in pure functions is split into multiple cores and each gets its own shell that handles only the side effects required by its core.
 
-Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes) project. [The actor implementation there](https://github.com/mahush/funkyactors) I prototyped on my own on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
+```mermaid
+flowchart TD
+
+subgraph ActorA["Actor"]
+    CoreA["Functional Core"]
+end
+
+subgraph ActorB["Actor"]
+    CoreB["Functional Core"]
+end
+
+subgraph ActorC["Actor"]
+    CoreC["Functional Core"]
+end
+
+ActorA -->|message| ActorB
+ActorA -->|message| ActorC
+ActorB -->|message| ActorC
+```    
+
+
+
+Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes) project. [The actor implementation there](https://github.com/mahush/funkyactors) I prototyped on my own on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
+
+However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
 
 Let's focus on two actors that are connected by a topic that communicates the `DirectionMsg`, representing a requested direction for the player's snakes.
 
@@ -84,6 +108,21 @@ class GameEngineActor : public Actor<GameEngineActor> {
 ```
 
 In summary, the `InputActor` asynchronously publishes player direction updates, while the `GameEngineActor` consumes them and evolves the game state each time the game loop timer fires.
+
+```mermaid
+flowchart TD
+
+subgraph InputActor["Input Actor (Shell)"]
+    InputCore["Functional Core"]
+end
+
+subgraph GameEngineActor["Game Engine Actor (Shell)"]
+    GameCore["Functional Core"]
+end
+
+InputActor -->|DirectionMsg| GameEngineActor
+```    
+
 
 Of course, this modular design comes with some benefits, let's take a closer look:
 
