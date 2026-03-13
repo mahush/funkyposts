@@ -82,4 +82,4 @@ And another great benefit of this design is that it improves *testability* signi
 
  This separation keeps the core self‑contained and lets the shell handle persistence. Together, they create a transparent, flexible and testable system where pure logic and controlled mutation coexist cleanly.
 
-The example here focused on *domain‑level state*. However, modules that maintain their own internal state introduce another level of abstraction. The post xxx will explore these *module‑internal states* and show how to handle both kinds of state cleanly.
+The example here focused on *domain‑level state*. However, modules that maintain their own internal state introduce another level of abstraction. The post [[stateful-functional-modules]] will explore these *module‑internal states* and show how to handle both kinds of state cleanly.
