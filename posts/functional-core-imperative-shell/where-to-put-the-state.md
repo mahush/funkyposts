@@ -13,6 +13,19 @@ Here's a quick reminder of the *functional core - imperative shell* architecture
 
 But where is state supposed to be located in this architecture? Actually it's quite simple: The state lives in the shell, passed to the core‘s functions and updated with their results.
 
+```mermaid
+flowchart TD
+
+Shell["[Imperative Shell]
+state lives here"]
+
+Core["[Functional Core]
+pure functions"]
+
+Shell -->|"state passed as data"| Core
+Core -->|"updated state returned"| Shell
+```
+
 Let’s dive into an example from *funkysnakes*, so that it’s getting tangible. The `GameEngineActor` holds the `GameState` struct that aggregates various sub states. By the way, you can find the complete code in [the funkysnakes github repository](https://github.com/mahush/funkysnakes).
 
 ```c++
