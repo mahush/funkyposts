@@ -67,7 +67,38 @@ direction_command_filter::tryConsumeNext(state_.direction_command_filter_state);
 state_.direction_command_filter_state = new_state;
 ```
 
-All right, as advertised, now a few insights on this design:
+This was very concrete. When zooming out a bit we can spot a reusable pattern:
+
+```c++
+namespace module {
+
+struct State;
+
+State operationA(State state, InputA input);
+std::tuple<State, OutputB> operationB(State state, InputB input);
+
+}
+```
+  
+The module defines the state type and its operations. The operation are pure functions that transform the module’s state.
+
+```c++
+namespace shell {
+
+module::State state;
+
+state = module::operationA(state, input);
+
+auto [new_state, output] = module::operationB(state, input);
+state = new_state;
+
+}
+```
+
+The shell persists the state between calls and threads it through the module’s functions.
+
+## What it means
+As announced, there a some aspects that deserve attention:
 
 *Class Equivalent*: Generally following this pattern a stateful class can be converted into a stateful functional module. I feel this is especially helpful as it bridges between the object oriented and the functional world. So when transitioning into functional programming just start with taking your modules with you.
 
@@ -82,7 +113,9 @@ All right, as advertised, now a few insights on this design:
 *Module Internal State vs Domain Level State*: Notice that `tryAdd` receives two different kinds of state: `direction_command_filter::State` (module internal) and `PerPlayerSnakes` (domain level). Module internal state is data that only the `direction_command_filter` functions understand. In contrast the domain level state has meaning across the entire game domain, so many parts of the system understand what a snake is and operates on this state. The filter module needs to read it (to check current direction) but doesn't own it. This differentiation is quite important as the level defines which functions can interpret the state. The key point here is: domain logic functions must not directly operate on and thus not interpret module internal state. Therefore the internal state's name on domain level is just `direction_command_filter_state` which only indicates that it belongs to the `direction_command_filter` module but effectively hides its internals.
 
 Sharing these different perspectives on that design should help you to get a deeper understanding of the implementation details and their consequences such that you see clearly how to apply this pattern by yourself. 
-## Summary 
+
+
+## Conclusions
 
 OOP naturally provides encapsulation of data in context of functions. Besides many weaknesses of object oriented design I feel this encapsulation generally is really a strength. So I am happy that this idea is compatible with functional programming. To be fair, only the class's data encapsulation is perfect in the sense that there is really no way to access a private member from outside the class (unless you make explicit exceptions via friend declarations). In the presented stateful functional module design the encapsulation is only based on the described discipline but in turn we gain great testability which I feel is a great trade off.
 
