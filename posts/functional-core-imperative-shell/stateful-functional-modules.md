@@ -12,7 +12,23 @@ So, this post explores how pure functions operating on a shared state can form a
 
 ## The Design Idea
 
-The basic idea of a stateful functional module is to group pure functions that all depend on the same shared state together with their state. This might sound like a no brainer, but actually there are a few subtle details to discover here ;-)
+The basic idea of a stateful functional module is to group pure functions that all depend on the same shared state together with their state definition. This might sound like a no brainer, but actually there are a few subtle details to discover here ;-)
+
+```mermaid
+flowchart TD
+
+subgraph Module["Functional Module"]
+    Defines["defines: State"]
+    Ops["pure functions"]
+end
+
+subgraph Shell["Imperative Shell"]
+    Stores["stores: State"]
+end
+
+Shell -->|"passes state to"| Ops
+Ops -->|"returns new state"| Shell
+```
 
 Let’s dive into some code from [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) and spot these subtle details along the way.
 
