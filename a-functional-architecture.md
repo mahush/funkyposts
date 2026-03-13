@@ -13,6 +13,13 @@ Let’s stay on this higher level and clarify what that means architecturally.
 # Functional Core – Imperative Shell
 The *functional core – imperative shell* concept formalizes this nicely: an application is split into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects).
 
+```mermaid
+flowchart TD
+    subgraph Shell["Imperative Shell"]
+        Core[Functional Core]
+    end
+```
+
 *Imperative Shell*: For a C++ developer this part is familiar. Here anything effectful is allowed: using the standard library to write to stderr, using protocol stacks to communicate with other systems, mutating private members to maintain state, or managing timers. In addition, the shell is responsible for managing the application’s execution environment, such as setting up concurrency. The only constraint: don’t implement business logic here.
 
 *Functional Core*: Every business decision is encoded in pure functions. These functions together form the core. You can compose them freely, while compositions remain pure. This lets you build various layers of abstraction and organize the business logic cleanly.
