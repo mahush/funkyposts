@@ -14,7 +14,7 @@ So, this post explores how pure functions operating on a shared state can form a
 
 The basic idea of a stateful functional module is to group pure functions that all depend on the same shared state together with their state. This might sound like a no brainer, but actually there are a few subtle details to discover here ;-)
 
-Let’s dive into some code from *funkysnakes* and spot these subtle details along the way.
+Let’s dive into some code from [funkysnakes](https://github.com/mahush/funkysnakes) and spot these subtle details along the way.
 
 Snakes are controlled via the arrows keys. But the game loop and key events are asynchronous, so at the beginning of each game loop tick, each snake's movement direction is updated based on  new key events since the last game loop tick. This "direction update" logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented in terms of filtering key press events.
 
