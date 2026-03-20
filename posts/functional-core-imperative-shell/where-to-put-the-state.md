@@ -26,7 +26,7 @@ Shell -->|"state passed as data"| Core
 Core -->|"updated state returned"| Shell
 ```
 
-Let’s dive into an example from *funkysnakes*, so that it’s getting tangible. The `GameEngineActor` holds the `GameState` struct that aggregates various sub states. By the way, you can find the complete code in [the funkysnakes github repository](https://github.com/mahush/funkysnakes).
+Let’s dive into an example from *funkysnakes*, so that it’s getting tangible. The `GameEngineActor` holds the `GameState` struct that aggregates various sub states. By the way, you can find the complete code in [the funkysnakes github repository](https://github.com/mahush/funkysnakes/tree/v0.1.0).
 
 ```c++
 class GameEngineActor : public Actor<GameEngine> {

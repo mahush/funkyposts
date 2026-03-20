@@ -34,7 +34,7 @@ ActorB -->|message| ActorC
 
 
 
-Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
+Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors/tree/v0.1.0) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
 
 However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
 
