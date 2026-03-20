@@ -34,7 +34,7 @@ ActorB -->|message| ActorC
 
 
 
-Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes) project. [The actor implementation there](https://github.com/mahush/funkyactors) I prototyped on my own on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
+Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
 
 However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
 
@@ -60,7 +60,7 @@ class InputActor : public Actor<InputActor> {
 		  direction_pub_{create_pub(std::move(direction_topic))} {}
 		  
 	private:
-		void InputActor::processInputs() {
+		void processInputs() {
 			while (auto ch = stdin_reader_->tryTakeChar()) {
 			    auto [key, new_state] = tryParseKey(*ch, key_parser_state_);
 			    key_parser_state_ = new_state;
@@ -133,7 +133,7 @@ Of course, this modular design comes with some benefits, let's take a closer loo
 	Complexity is distributed across multiple shells. Each shell only handles its own side effects. The `GameEngineActor` doesn't care about publishing direction messages, and the `InputActor` doesn't deal with the game state or the game loop timer. Each part remains small and understandable.
 
 - *Fewer Bugs: Concurrency and Isolation*
-	Processing key events and running the game loop happen asynchronously. Key events occur sporadically, while the game loop runs periodically via a timer. Each actor has its own single-threaded execution environment and processes events such as incoming messages or timer  expirations sequentially. This eliminates low-level multithreading issues such as data races, because there is no shared mutable state and therefore no need for manual synchronization. Everyone else that has spent days debugging low level multithreading issues knows how valuable such a design is.
+	Processing key events and running the game loop happen asynchronously. Key events occur sporadically, while the game loop runs periodically via a timer. Each actor has its own single-threaded execution environment and processes events such as incoming messages or timer  expirations sequentially. This eliminates low-level multithreading issues such as data races, because there is no shared mutable state and therefore no need for manual synchronization. Anyone who has spent days debugging low level multithreading issues knows how valuable such a design is.
 
 - *Better Maintainability: Independent Scaling*
   You can add another input source, such as a Bluetooth controller, without touching the `GameEngineActor`. You can even add it without touching the existing `InputActor`, just adding another actor that publishes a `DirectionMsg` message. Each module evolves independently.
@@ -148,4 +148,4 @@ In addition the actor model helps bridge clean functional design with other prog
 So, whether you want to improve your existing functional architecture or utilize functional programming in the first place, this is for you.
 
 ---
-This Post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts Version: v01
+This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts Version: v01

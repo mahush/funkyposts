@@ -16,7 +16,7 @@ The basic idea of a stateful functional module is to group pure functions that a
 
 Let’s dive into some code from *funkysnakes* and spot these subtle details along the way.
 
-Snakes are controlled via the arrows keys. But the game loop and key events are asynchronous, so at the beginning of each game loop tick each snake's movement direction is updated based on  new key events since the last game loop tick. This "direction update" logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented in terms of filtering key press events.
+Snakes are controlled via the arrows keys. But the game loop and key events are asynchronous, so at the beginning of each game loop tick, each snake's movement direction is updated based on  new key events since the last game loop tick. This "direction update" logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented in terms of filtering key press events.
 
 No surprise, this logic requires state that is a queue of directions per player:
 
@@ -29,7 +29,7 @@ struct State {
 }
 ```
 
-The `direction_command_filter` module's interface provides the function `tryAdd` that simply adds another direction command (basically a key press event) to the filter. The function `tryConsumeNext` takes the next direction that passed the filter out of the queue. Both methods may adjust the state:
+The `direction_command_filter` module's interface provides the function `tryAdd`, which simply adds another direction command (basically a key press event) to the filter. The function `tryConsumeNext` takes the next direction that passed the filter out of the queue. Both methods may adjust the state:
 
 ```c++
 namespace direction_command_filter {
@@ -40,7 +40,7 @@ std::tuple<State, PerPlayerDirection> tryConsumeNext(State state);
 }
 ```
 
-As pointed out in [[where-to-put-the-state]], the pure functions are called by the shell passing in the current state as data and updating that state with the returned data. So all the state is handled by the `GameEngineActor` which here means the module state `direction_command_filter::State` as well as the general state `PerPlayerSnakes`:
+As pointed out in [[where-to-put-the-state]], the pure functions are called by the shell passing in the current state as data and updating that state with the returned data. So all the state is handled by the `GameEngineActor`, which here means the module state `direction_command_filter::State` as well as the general state `PerPlayerSnakes`:
 
 ```c++
 namespace shell {
@@ -100,13 +100,13 @@ The shell persists the state between calls and threads it through the module’s
 ## What it means
 As announced, there a some aspects that deserve attention:
 
-*Class Equivalent*: Generally following this pattern a stateful class can be converted into a stateful functional module. I feel this is especially helpful as it bridges between the object oriented and the functional world. So when transitioning into functional programming just start with taking your modules with you.
+*Class Equivalent*: Generally, following this pattern, a stateful class can be converted into a stateful functional module. I feel this is especially helpful as it bridges between the object oriented and the functional world. So when transitioning into functional programming just start with taking your modules with you.
 
 *Self Contained Module*: The code in the `direction_command_filter` namespace make the module. By defining its functions and internal state it's self contained and as such can be unit tested in isolation.
 
 *Namespace Scope*: Note that the namespace gives scope to the functions exactly as a class name would do otherwise. In turn the module boundaries are clearly visible at client side calls. Also it's sufficient to call the module's state simply `State`.
 
-*Effective Encapsulation*: The module's state is only modified by the module's functions itself. This is the essence of encapsulating state as provided by private class member variables in OOP context. Please note that the shell managing the persistence of this module internal state is not contradicting as the shell only applies modification created by the module's functions. The shell does not modify state on its own behalf. From the shell's perspective, module state is a black box, although it stores and threads it through module functions but never peeks inside.
+*Effective Encapsulation*: The module's state is only modified by the module's functions themselves. This is the essence of encapsulating state as provided by private class member variables in OOP context. Please note that the shell, which manages the persistence of this module-internal state, does not contradict this, as the shell only applies modification created by the module's functions. The shell does not modify state on its own behalf. From the shell's perspective, module state is a black box, although it stores and threads it through module functions but never peeks inside.
 
 *Testability*: Although the state is encapsulated it's not hidden. When calling the module's pure functions we can easily pass arbitrary state in and observe the resulting state. So testing works the same as described in [[where-to-put-the-state]], which means stateful modules are perfectly testable. I love it.
 

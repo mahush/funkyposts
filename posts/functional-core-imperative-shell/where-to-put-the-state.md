@@ -63,9 +63,9 @@ First, the `moveSnakes` function itself belongs to the core, because that is wha
 
 Second, the Sub-State data structures `PerPlayerSnakes`, `Board` and `FoodItems` are also part of the core. This is because according to the *functional core - imperative shell* architecture, there is no dependency from core to shell, instead the core is self-contained. This way the logic encapsulated by `moveSnakes` can be implemented and tested completely decoupled from the shell.
 
-Third, the instantiated `GameState` within the `GameEngineActor` belongs to the shell. The same applies for the actual call of `moveSnakes`. Thus managing state by invoking core functions is a shell responsibility. 
+Third, the instantiated `GameState` within the `GameEngineActor` belongs to the shell. The same applies to the actual call of `moveSnakes`. Thus managing state by invoking core functions is a shell responsibility. 
 
-Fourth, it's interesting to take a closer look at how shell and core perceive state differently. From the shell's point of view, the `GameState` is data persistent across multiple calls and mutated by calls like `moveSnakes`. As persisting and mutating is what makes data state, the shell actually sees `GameState` as state. But from the core's point of view, however, there's no notion of state - only data passed in and potentially returned. Exactly this is the magic that allows pure functions to eventually mutate state.
+Fourth, it's interesting to take a closer look at how shell and core perceive state differently. From the shell's point of view, the `GameState` is data persistent across multiple calls and mutated by calls like `moveSnakes`. As persisting and mutating is what makes data state, the shell actually sees `GameState` as state. From the core's point of view, however, there's no notion of state - only data passed in and potentially returned. This is exactly the magic that allows pure functions to eventually mutate state.
 
 So now that we have a clear picture about the mechanics at work, we can reflect on the advantages we get here.
 
