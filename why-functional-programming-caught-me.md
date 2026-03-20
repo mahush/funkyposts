@@ -15,7 +15,7 @@ Mocks must implement the same interface as the real components they replace. The
 
 *State encapsulated within a class is hard to modify by a test*: In traditional OOP, private mutable state is fully hidden, so tests cannot set it up directly. A test that needs the object in a specific internal configuration must drive the state there indirectly through the public interface, which often requires multiple method calls, complex sequences, and mocks. This indirect setup adds unnecessary complexity and makes tests more brittle.
 
-Kudos to a blog post called „Mocking is code smell” that helped me a lot in better understanding these issues and how functional programming would allow to do better. This really caught me. My interest in functional programming was born.
+Kudos to Eric Elliott who wrote the blog post [Mocking is Code Smell](https://medium.com/javascript-scene/mocking-is-a-code-smell-944a70c90a6a) that helped me a lot in better understanding these issues and how functional programming would allow to do better. This really caught me. My interest in functional programming was born.
 
 Looking at OOP from an FP perspective also made another long‑standing issue clear: inheritance.
 
