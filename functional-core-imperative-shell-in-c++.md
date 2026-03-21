@@ -26,6 +26,57 @@ flowchart TD
 
 One important design aspect I want to highlight: the core is self‑contained. So, while the shell depends on the core, the core is independent of the shell. This enables testing the core in complete isolation from any shell.
 
+# A Simple Example
+Let's look at a concrete C++ example from a snake game. Consider direction change validation — the rule that prevents instantly reversing direction:
+
+```cpp
+enum class Direction { Up, Down, Left, Right };
+
+struct EvaluationResult {
+    bool accepted;
+    std::optional<std::string> logMessage;
+};
+
+Direction opposite(Direction d) {
+    switch(d) {
+        case Direction::Up: return Direction::Down;
+        case Direction::Down: return Direction::Up;
+        case Direction::Left: return Direction::Right;
+        case Direction::Right: return Direction::Left;
+    }
+}
+
+// functional core
+EvaluationResult evaluateDirectionChange(Direction current, Direction requested) {
+    if (requested == opposite(current)) {
+        return {false, "Cannot reverse direction directly"};
+    }
+
+    return {true, std::nullopt};
+}
+
+// imperative shell
+int main() {
+    Direction snake_direction = Direction::Right;
+
+    while (true) {
+        Direction input = readInput();  // effectful: read from keyboard
+
+        auto result = evaluateDirectionChange(snake_direction, input);
+
+        if (result.logMessage) {
+            std::cerr << *result.logMessage << "\n";  // effectful: write to stderr
+        }
+
+        if (result.accepted) {
+            snake_direction = input;  // effectful: mutate state
+        }
+    }
+}
+```
+
+The `evaluateDirectionChange` function is the functional core—it's pure, encoding the business rule about valid direction changes. The `main` function is the imperative shell—it calls the core, interprets the result, and performs side effects like reading input, logging errors, or mutating the game state.
+
 # Going Deeper?
 That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Check my post [[actors-as-shell]] where I dive into a real‑world code example touching many interesting details.
 
