@@ -78,7 +78,7 @@ int main() {
 The `evaluateDirectionChange` function is the functional core—it's pure, encoding the business rule about valid direction changes. The `main` function is the imperative shell—it calls the core, interprets the result, and performs side effects like reading input, logging errors, or mutating the game state.
 
 ## Going Deeper?
-That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Check my post [[actors-as-shell]] where I dive into a real‑world code example touching many interesting details.
+That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Stay tuned, in my next post, I will refine this basic idea in the context of a real-world code example, touching many interesting details along the way.
 
 ---
 Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
