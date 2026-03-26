@@ -136,3 +136,6 @@ Sharing these different perspectives on that design should help you to get a dee
 OOP naturally provides encapsulation of data in context of functions. Besides many weaknesses of object oriented design I feel this encapsulation generally is really a strength. So I am happy that this idea is compatible with functional programming. To be fair, only the class's data encapsulation is perfect in the sense that there is really no way to access a private member from outside the class (unless you make explicit exceptions via friend declarations). In the presented stateful functional module design the encapsulation is only based on the described discipline but in turn we gain great testability which I feel is a great trade off.
 
 Now it's your turn, give it a try an feel the magic of building a stateful functional module out of stateless functions!
+
+---
+This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
