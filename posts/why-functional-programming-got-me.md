@@ -1,11 +1,11 @@
 *From object-oriented to functional programming*
 
-## Some Background
+## My Early Days
 In the first years of my career I aimed to master OOP as provided by C++98. What I knew about programming at that time brought me to the conclusion that writing high quality code is just a matter of being fluent in the language, the object-oriented paradigm and the design patterns around it. So, I was practicing, and as the years passed and my ability to write idiomatic object-oriented code improved I began to see its limits.
 
 To better understand my journey here, let me share another complementary learning path of mine that is about testing. The first embedded projects I joined didn’t have any automated tests. Instead, testing was done manually by using the device, observing its behavior and pressing its buttons. We developers did this ourselves to see if our changes worked and a dedicated test department did so all day to “ensure” the device generally behaves as expected. In a later embedded project two colleagues were practicing unit testing for their production code. Given how many regressions we had experienced and how much effort it took to fix them in coordination with the test department, I realized the potential of automated tests. So, I started writing unit tests myself. At that time, the OOP patterns I was applying became limiting.
 
-## The Limits of OOP 
+## Where I Struggle with OOP 
 When diving into unit testing, an essential learning was: If you want to unit test your code, you actually must write your code to be unit-testable. In short, you must be able to execute smaller parts of your code in isolation. That is applying the “separation of concerns” principle, which provides the units for testing. And to actually run modules independently, dependency injection comes into play. This means if one module depends on another, it is passed in, normally as a constructor argument. In a unit test where a single module should run in isolation, all dependent modules need to be mocked. Instead of real dependencies, the test passes its mocks as constructor arguments.
 
 **No testing without mocking**: Technically that mocking approach works well; unit testing is enabled. But actually it comes at a high price. The mocks need to be written and maintained, which increases test-specific code and in turn leads to higher test complexity. And we should not neglect this, as only if all the mocks are implemented correctly, the test is helpful.
