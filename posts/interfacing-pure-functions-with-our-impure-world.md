@@ -1,7 +1,6 @@
 *Introducing the functional core–imperative shell architecture*
 
 ## Here Comes the Challenge
-This post is part of the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
 
 Functional programming is about utilizing pure functions. By putting the business logic into these functions, which by definition are free of side effects, many things become easier (e.g. testing as described in [[why-functional-programming-caught-me]]). But every real application must still perform effectful operations such as doing IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
 
@@ -82,4 +81,4 @@ The `evaluateDirectionChange` function is the functional core—it's pure, encod
 That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Check my post [[actors-as-shell]] where I dive into a real‑world code example touching many interesting details.
 
 ---
-This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
+Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
