@@ -1,4 +1,4 @@
-*Combining Pure Functions With Real‑World Side Effects*
+*Introducing the functional core imperative shell architecture*
 
 # Introduction
 This post belongs to the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
