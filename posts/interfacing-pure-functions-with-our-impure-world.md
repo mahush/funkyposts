@@ -26,7 +26,7 @@ flowchart TD
 One important design aspect I want to highlight: the core is self‑contained. So, while the shell depends on the core, the core is independent of the shell. This enables testing the core in complete isolation from any shell.
 
 ## Making It Real
-Let's look at a concrete C++ example from a snake game. Consider direction change validation — the rule that prevents instantly reversing direction:
+Let's look at a simplified C++ example from a snake game. Consider direction change validation — the rule that prevents instantly reversing direction:
 
 ```cpp
 enum class Direction { Up, Down, Left, Right };
@@ -60,16 +60,19 @@ int main() {
     Direction snake_direction = Direction::Right;
 
     while (true) {
-        Direction input = readInput();  // effectful: read from keyboard
+	    // effectful: read from keyboard
+        Direction input = readInput();
 
         auto result = evaluateDirectionChange(snake_direction, input);
 
         if (result.logMessage) {
-            std::cerr << *result.logMessage << "\n";  // effectful: write to stderr
+	        // effectful: write to stderr
+            std::cerr << *result.logMessage << "\n";
         }
 
         if (result.accepted) {
-            snake_direction = input;  // effectful: mutate state
+	        // effectful: mutate state
+            snake_direction = input;
         }
     }
 }
