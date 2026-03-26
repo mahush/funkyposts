@@ -1,14 +1,14 @@
-*Introducing the functional core imperative shell architecture*
+*Introducing the functional core–imperative shell architecture*
 
 ## Introduction
-This post belongs to the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
+This post is part of the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
 
 Functional programming is about utilizing pure functions. By putting the business logic into these functions, which by definition are free of side effects, many things become easier (e.g. testing as described in [[why-functional-programming-caught-me]]). But every real application must still perform effectful operations such as doing IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
 
 ## The Elephant
-The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for them. Therefore, they return data describing what should happen, and their caller interprets them and performs the effects. So, effect‑related behavior still happens—it’s just moved to the call site. For example, a pure function decides to create a log message, and the caller connects to the outside world by printing it to stderr. 
+The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for them. Therefore, they return data describing what should happen, and their caller interprets them and performs the effects. So, effect‑related behavior still happens—it’s just moved to the call site. For example, a pure function decides to create a log message, and the caller interacts with the outside world by printing it to stderr. 
 
-Let’s stay on this higher level and clarify what that means architecturally.
+Let’s stay at this higher level and clarify what that means for the architecture.
 
 ## Functional Core – Imperative Shell
 The *functional core – imperative shell* concept formalizes this nicely: an application is split into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects).
