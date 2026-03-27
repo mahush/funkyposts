@@ -29,8 +29,12 @@ The game-changing key idea in functional programming is the pure function. A pur
 
 **Coupling decreases**: Of course, class hierarchy coupling also goes away with FP, functionality still builds on top of other functionality, but when this essentially means composing pure functions, all dependencies are only at the function signature level which again reduces complexity.
 
-## How to get started 
+## If This Resonates
 Sure thing, learning a new programming paradigm takes sustained effort, and how much depends on your learning path. If you’re coming from an OOP-heavy, C++-style background like I did, I might speak your language well enough to make functional programming feel more approachable. My original motivation wasn’t to blog about functional programming. I simply wanted to figure out how to apply its ideas effectively in real-world C++ code. After exploring this for a while and finding techniques that work for me, it feels natural to share and discuss them. The funkyposts blog is my attempt to build a bridge between traditional C++ and functional programming by illustrating practical FP patterns in modern C++. Hopefully this helps other C++ developers go more functional while inviting constructive feedback on my own understanding.
+
+## Dive deeper
+- **[Interfacing Pure Functions with Our Impure World](interfacing-pure-functions-with-our-impure-world.md)** — How to structure applications using the functional core–imperative shell architecture
+- More posts in this series coming soon
 
 ---
 Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
