@@ -1,6 +1,6 @@
 *Why functional programming got me — and the design changes that followed*
 
-C++ development is still heavily shaped by object-oriented thinking. In real-world projects, this can create friction—especially around testing and tight coupling. At the same time, modern C++ has evolved into a multi-paradigm language with increasingly strong support for functional programming. But having the tools doesn’t automatically change how we design systems. In this post, I will explore what actually changes when you start thinking functionally, based on the experiences that led me here. 
+C++ development is still heavily shaped by object-oriented thinking. In real-world projects, this can create friction—especially around testing and tight coupling. At the same time, modern C++ has evolved into a multi-paradigm language with increasingly strong support for functional programming. But having the tools doesn’t automatically change how we design systems. In this post, I will explore what actually changes when moving from object-oriented to functional thinking in C++, based on the experiences that led me here. 
 
 ## My Early Days
 In the first years of my career I aimed to master OOP as provided by C++98. What I knew about programming at that time brought me to the conclusion that writing high quality code is just a matter of being fluent in the language, the object-oriented paradigm and the design patterns around it. So, I was practicing, and as the years passed and my ability to write idiomatic object-oriented code improved I began to see its limits.
