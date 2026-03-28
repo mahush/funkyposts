@@ -1,3 +1,5 @@
+*Why functional programming got me — and the design changes that followed*
+
 C++ development is still heavily shaped by object-oriented thinking. In real-world projects, this can create friction—especially around testing and tight coupling. At the same time, modern C++ has evolved into a multi-paradigm language with increasingly strong support for functional programming. But having the tools doesn’t automatically change how we design systems. In this post, I will explore what actually changes when you start thinking functionally, based on the experiences that led me here. 
 
 ## My Early Days
@@ -23,7 +25,7 @@ Looking at OOP from an FP perspective also made another long-standing issue clea
 So, these were my pain points, and I was primed to find solutions in functional programming and I did.
 
 ## What Actually Changes with Functional Thinking 
-The game-changing key idea in functional programming is the pure function. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. When you apply this style to your business logic, things become clean and predictable. 
+The essential mental shift in functional programming is towards thinking in terms of pure functions instead of classes. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. When you compose your business logic out of pure functions, the design becomes cleaner and easier to reason about. 
 
 **Testability improves**: This makes testing straightforward, you call the function with test data and check the result. No hidden state means no complicated setup, and no implicit dependencies mean you don’t need objects standing in for other objects. You may need to supply a function as an argument when testing. But this “mock” is just a single, stateless function, not an entire class with multiple methods and internal state. The complexity drops dramatically. So the takeaway is this: when you structure your logic as pure functions, the heavy mocking simply disappears.
 
