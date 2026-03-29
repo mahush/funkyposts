@@ -1,8 +1,10 @@
 # funkyposts
 
-![image](https://raw.githubusercontent.com/mahush/funkyposts/refs/heads/main/Images/funkyposts_cover_image.png)
+![image](https://raw.githubusercontent.com/mahush/funkyposts/refs/heads/main/Images/funkyposts_cover_image_v3.png)
 
-Blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++.
+**Bridging object-oriented and functional thinking in C++**
+
+Blogging to complement traditional C++ with functional thinking by exploring how to apply functional patterns and architectural ideas in modern C++.
 
 Posts are created with AI assistance for brainstorming and improving formulation.
 
