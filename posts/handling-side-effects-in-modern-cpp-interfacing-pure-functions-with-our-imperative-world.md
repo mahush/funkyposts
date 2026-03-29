@@ -1,13 +1,16 @@
-*Introducing the functional core–imperative shell architecture*
-## Here Comes the Challenge
-Functional programming is about utilizing pure functions. By putting the business logic into these functions, which by definition are free of side effects, many things become easier (e.g., testing as described in [[why-functional-programming-caught-me]]). But every real application must still perform effectful operations such as IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
+# Handling Side Effects in Modern C++: Interfacing Pure Functions with Our Imperative World
 
-## Addressing the Elephant
+*Introducing the functional core–imperative shell pattern*
+
+## The Challenge: Pure Functions vs Side Effects
+Functional programming is about utilizing pure functions. By putting the business logic into these functions, which by definition are free of side effects, many things become easier (e.g., testing as described in [[bridging-object-oriented-and-functional-thinking-in-modern-cpp]]). But every real application must still perform effectful operations such as IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
+
+## Decoupling Logic and Side Effects
 The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for them. Therefore, they return data describing what should happen, and their caller interprets them and performs the effects. So, effect‑related behavior still happens—it’s just moved to the call site. For example, a pure function decides to create a log message, and the caller interacts with the outside world by printing it to stderr.
 
-Let’s stay at this higher level and clarify what that means for the architecture.
+This creates a clear boundary: pure functions just request the effect, while imperative code performs it. At a higher level, this approach doesn’t eliminate traditional C++, it bridges it with functional thinking.
 
-## Functional Core–Imperative Shell
+## The Functional Core–Imperative Shell Pattern
 The *functional core–imperative shell* concept formalizes this nicely: an application is split into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects).
 
 ```mermaid
@@ -23,7 +26,7 @@ flowchart TD
 
 One important design aspect I want to highlight: the core is self‑contained. So, while the shell depends on the core, the core is independent of the shell. This enables testing the core in complete isolation from any shell.
 
-## Making It Real
+## Applying the Pattern in C++
 Let's look at a simplified C++ example from a snake game. Consider direction change validation — the rule that prevents instantly reversing direction:
 
 ```cpp
@@ -78,8 +81,8 @@ int main() {
 
 The `evaluateDirectionChange` function is the functional core—it's pure, encoding the business rule about valid direction changes. The `main` function is the imperative shell—it calls the core, interprets the result, and performs side effects like reading input, logging errors, or mutating the game state.
 
-## Going Deeper?
+## Where This Leads Next
 That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Stay tuned, in my next post, I will refine this basic idea in the context of a real-world code example, touching many interesting details along the way.
 
 ---
-Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
+Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
