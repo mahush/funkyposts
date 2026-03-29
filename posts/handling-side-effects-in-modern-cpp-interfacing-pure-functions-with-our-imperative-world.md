@@ -2,13 +2,13 @@
 
 *Introducing the functional core–imperative shell pattern*
 
+In the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), I explored why structuring business logic as pure functions can improve C++ design. The next step is to apply this in real-world applications.
 ## The Challenge: Pure Functions vs Side Effects
-Functional programming is about utilizing pure functions. By putting the business logic into these functions, which by definition are free of side effects, many things become easier (e.g., testing as described in [[bridging-object-oriented-and-functional-thinking-in-modern-cpp]]). But every real application must still perform effectful operations such as IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
-
+Pure functions are, by definition, free of side effects. But every application must still perform effectful operations such as IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
 ## Decoupling Logic and Side Effects
 The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for them. Therefore, they return data describing what should happen, and their caller interprets them and performs the effects. So, effect‑related behavior still happens—it’s just moved to the call site. For example, a pure function decides to create a log message, and the caller interacts with the outside world by printing it to stderr.
 
-This creates a clear boundary: pure functions just request the effect, while imperative code performs it. At a higher level, this approach doesn’t eliminate traditional C++, it bridges it with functional thinking.
+This creates a clear boundary: pure functions just request the effect, while imperative code performs it. In practice, this approach doesn’t eliminate traditional C++, it bridges it with functional thinking.
 
 ## The Functional Core–Imperative Shell Pattern
 The *functional core–imperative shell* concept formalizes this nicely: an application is split into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects).
