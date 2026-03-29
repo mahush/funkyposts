@@ -39,7 +39,7 @@ Sure thing, learning a new programming paradigm takes sustained effort, and how 
 ## Dive deeper
 As said, I advocate for implementing the business logic, the heart of an application in a functional style, while utilizing traditional C++ for everything else. The subsequent posts in this series will show how to structure an application accordingly.
 
-- **[Interfacing Pure Functions with Our Impure World](interfacing-pure-functions-with-our-impure-world.md)** — How to structure applications using the functional core–imperative shell architecture
+- **[Handling Side Effects in Modern C++: Interfacing Pure Functions with Our Imperative World](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world.md)** — Introduces the functional core–imperative shell architecture
 - More posts in this series coming soon
 
 ---
