@@ -1,6 +1,6 @@
 *Why functional programming got me — and the design changes that followed*
 
-C++ development is still heavily shaped by object-oriented thinking. In real-world projects, this can create friction—especially around testing and tight coupling. At the same time, modern C++ has evolved into a multi-paradigm language with increasingly strong support for functional programming. But having the tools doesn’t automatically change how we design systems. In this post, I will explore what actually changes when moving from object-oriented to functional thinking in C++, based on the experiences that led me here. 
+C++ development is still heavily shaped by object-oriented thinking. In real-world projects, this can create friction—especially around testing and tight coupling. At the same time, modern C++ has evolved into a multi-paradigm language with increasingly strong support for functional programming. But having the tools doesn’t automatically change how we design systems. In this post, I will explore what actually changes when you start combining object-oriented and functional thinking in C++, based on the experiences that led me here. 
 
 ## My Early Days
 In the first years of my career I aimed to master OOP as provided by C++98. What I knew about programming at that time brought me to the conclusion that writing high quality code is just a matter of being fluent in the language, the object-oriented paradigm and the design patterns around it. So, I was practicing, and as the years passed and my ability to write idiomatic object-oriented code improved I began to see its limits.
@@ -24,19 +24,23 @@ Looking at OOP from an FP perspective also made another long-standing issue clea
 
 So, these were my pain points, and I was primed to find solutions in functional programming and I did.
 
-## What Actually Changes with Functional Thinking 
-The essential mental shift in functional programming is towards thinking in terms of pure functions instead of classes. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. When you compose your business logic out of pure functions, the design becomes cleaner and easier to reason about. 
+## What Functional Thinking Unlocks 
+The key idea is to start thinking in terms of pure functions alongside classes. A pure function is as simple as it gets: it takes input and returns output, with no hidden state and no implicit dependencies. Using pure functions as building blocks unlocks an additional solution space. For example, the issues described above evolve as follows:
 
 **Testability improves**: This makes testing straightforward, you call the function with test data and check the result. No hidden state means no complicated setup, and no implicit dependencies mean you don’t need objects standing in for other objects. You may need to supply a function as an argument when testing. But this “mock” is just a single, stateless function, not an entire class with multiple methods and internal state. The complexity drops dramatically. So the takeaway is this: when you structure your logic as pure functions, the heavy mocking simply disappears.
 
 **Coupling decreases**: Of course, class hierarchy coupling also goes away with FP, functionality still builds on top of other functionality, but when this essentially means composing pure functions, all dependencies are only at the function signature level which again reduces complexity.
 
+In other words, when you compose your business logic out of pure functions, the design becomes cleaner, improving both testability and maintainability. Don't get me wrong, this is not about replacing OOP with FP, it's about complementing where appropriate.
+
 ## If This Resonates
 Sure thing, learning a new programming paradigm takes sustained effort, and how much depends on your learning path. If you’re coming from an OOP-heavy, C++-style background like I did, I might speak your language well enough to make functional programming feel more approachable. My original motivation wasn’t to blog about functional programming. I simply wanted to figure out how to apply its ideas effectively in real-world C++ code. After exploring this for a while and finding techniques that work for me, it feels natural to share and discuss them. The funkyposts blog is my attempt to build a bridge between traditional C++ and functional programming by illustrating practical FP patterns in modern C++. Hopefully this helps other C++ developers go more functional while inviting constructive feedback on my own understanding.
 
 ## Dive deeper
+As said, I advocate for implementing the business logic, the heart of an application in a functional style, while utilizing traditional C++ for everything else. The subsequent posts in this series will show how to structure an application accordingly.
+
 - **[Interfacing Pure Functions with Our Impure World](interfacing-pure-functions-with-our-impure-world.md)** — How to structure applications using the functional core–imperative shell architecture
 - More posts in this series coming soon
 
 ---
-Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v04)
+Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v05)
