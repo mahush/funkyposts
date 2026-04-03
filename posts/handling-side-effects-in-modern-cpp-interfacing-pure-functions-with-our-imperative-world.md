@@ -2,16 +2,13 @@
 
 *Introducing the functional core–imperative shell pattern*
 
-In the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), I explored why structuring business logic as pure functions can improve C++ design. The next step is to apply this in real-world applications.
-## The Challenge: Pure Functions vs Side Effects
-Pure functions are, by definition, free of side effects. But every application must still perform effectful operations such as IO, updating state, or reacting in a time‑based manner — otherwise the application would be useless. So you might have noticed the elephant in the room: how can effect‑free functions ultimately cause the effects an application must perform?
+The previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp) clarified why structuring business logic as pure functions makes code easier to test and reason about. But when you try to utilize pure functions, you quickly run into a problem: Although you don't want your functions to have side effects, the application you are building still must perform effectful operations to be useful. These include IO, updating state, or reacting in a time‑based manner. This leads to a practical question: how can effect‑free functions ultimately cause the effects an application must perform?
 ## Decoupling Logic and Side Effects
-The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for them. Therefore, they return data describing what should happen, and their caller interprets them and performs the effects. So, effect‑related behavior still happens—it’s just moved to the call site. For example, a pure function decides to create a log message, and the caller interacts with the outside world by printing it to stderr.
+The high‑level answer is surprisingly simple: pure functions let someone else perform side effects for them. Therefore, they return data describing what should happen, and it's the caller that interprets the result and performs the effects. So, effect‑related behavior still happens—it’s just moved to the call site. For example, a pure function decides to create a log message, and the caller interacts with the outside world by printing it to stderr. 
 
-This creates a clear boundary: pure functions just request the effect, while imperative code performs it. In practice, this approach doesn’t eliminate traditional C++, it bridges it with functional thinking.
-
+If this reminds you of the command pattern, you’re not wrong—but here it’s about how you organize the system. The key idea is to introduce two complementary worlds: one where pure code requests effects and one where imperative code performs them.
 ## The Functional Core–Imperative Shell Pattern
-The *functional core–imperative shell* concept formalizes this nicely: an application is split into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects).
+This simple structure is called *functional core–imperative shell*. It splits an application into a functional core (pure business logic) and an imperative shell (which calls the core and performs side effects).
 
 ```mermaid
 flowchart TD
@@ -24,10 +21,12 @@ flowchart TD
 
 **Functional Core**: Every business decision is encoded in pure functions. These functions together form the core. You can compose them freely, while these compositions remain pure. This lets you build various layers of abstraction and organize the business logic cleanly.
 
-One important design aspect I want to highlight: the core is self‑contained. So, while the shell depends on the core, the core is independent of the shell. This enables testing the core in complete isolation from any shell.
+One important design aspect I want to highlight: the core is self‑contained. So, while the shell depends on the core, the core is independent of the shell. This enables testing the core in complete isolation from any shell. 
+
+This is exactly where utilizing pure functions pays off: testing becomes straightforward: you call the function with input values and verify the result. There’s no heavy mocking, no dependency injection, and no complex setup.
 
 ## Applying the Pattern in C++
-Let's look at a simplified C++ example from a snake game. Consider direction change validation — the rule that prevents instantly reversing direction:
+Let's look at a simplified C++ example from a snake game to see core and shell clearly. Consider direction change validation — the rule that prevents instantly reversing direction. 
 
 ```cpp
 enum class Direction { Up, Down, Left, Right };
@@ -38,7 +37,7 @@ struct EvaluationResult {
     SoundEffect sound_effect;
 };
 
-constexpr Direction opposite(Direction d) {
+Direction opposite(Direction d) {
     switch (d) {
         case Direction::Up: return Direction::Down;
         case Direction::Down: return Direction::Up;
@@ -79,8 +78,16 @@ int main() {
 
 The `evaluateDirectionChange` function is the functional core—it's pure, encoding the business rule about the game's behavior on direction changes. The `main` function is the imperative shell—it calls the core, interprets the result, and performs side effects like reading user input, playing sound, or mutating the game state.
 
+## Starting Small Works Well
+The *functional core–imperative shell* pattern allows you to clearly distinguish between the imperative and the pure worlds, while having them bridged via simple function calls.
+
+Yes, this is a fundamental shift in how to deal with side effects. But this approach doesn’t invalidate your existing C++ design. Instead of starting from scratch, it's about shifting where effectful behavior takes place. And, it's not about all or nothing, in practice you can start small. The pattern works also for a subset of your business logic. Take a piece of code and split out the side effects. Already with the first step you gain better testability and reasoning for the resulting pure world code as described in the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp). Then incrementally push more side effects to the edges.
 ## Where This Leads Next
-That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Stay tuned, in my next post, I will refine this basic idea in the context of a real-world code example, touching many interesting details along the way.
+The *functional core–imperative shell* pattern works well for decoupling business logic from side effects, that problem is solved.
+
+But as applications grow, a new problem appears: the shell starts accumulating unrelated responsibilities. Even in a simple snake game, this escalates quickly: handling user input, playing sound, managing the game state, and performing screen IO all end up in the same place. 
+
+In my next post, I will show how to refine this design further so these responsibilities can be separated cleanly as well.
 
 ---
-Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
+Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v03)
