@@ -4,7 +4,7 @@
 
 **Bridging object-oriented and functional thinking in C++**
 
-Blogging to complement traditional C++ with functional thinking by exploring how to apply functional patterns and architectural ideas in modern C++.
+Applying functional thinking to solve real-world C++ design problems—practical, experience-driven, beyond theory.
 
 Posts are created with AI assistance for brainstorming and improving formulation.
 
