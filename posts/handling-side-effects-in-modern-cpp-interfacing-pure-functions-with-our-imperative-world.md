@@ -31,10 +31,11 @@ Let's look at a simplified C++ example from a snake game. Consider direction cha
 
 ```cpp
 enum class Direction { Up, Down, Left, Right };
+enum class SoundEffect { None, InvalidInput };
 
 struct EvaluationResult {
-    bool accepted;
-    std::optional<std::string> logMessage;
+    bool direction_changed;
+    SoundEffect sound_effect;
 };
 
 constexpr Direction opposite(Direction d) {
@@ -48,12 +49,12 @@ constexpr Direction opposite(Direction d) {
 }
 
 // functional core
-EvaluationResult evaluateDirectionChange(Direction current, Direction requested) {
+constexpr EvaluationResult evaluateDirectionChange(Direction current, Direction requested) {
     if (requested == opposite(current)) {
-        return {false, "Cannot reverse direction directly"};
+        return {false, SoundEffect::InvalidInput};
     }
 
-    return {true, std::nullopt};
+    return {true, SoundEffect::None};
 }
 
 // imperative shell
@@ -61,25 +62,22 @@ int main() {
     Direction snake_direction = Direction::Right;
 
     while (true) {
-	    // effectful: read from keyboard
-        Direction input = readInput();
+        Direction input = readUserInput();  // effectful
 
-        auto result = evaluateDirectionChange(snake_direction, input);
+        auto result = evaluateDirectionChange(snake_direction, input); // calling core
 
-        if (result.logMessage) {
-	        // effectful: write to stderr
-            std::cerr << *result.logMessage << "\n";
+        if (result.sound_effect != SoundEffect::None) {
+            playSound(result.sound_effect);  // effectful
         }
 
-        if (result.accepted) {
-	        // effectful: mutate state
-            snake_direction = input;
+        if (result.direction_changed) {
+            snake_direction = input;  // effectful
         }
     }
 }
 ```
 
-The `evaluateDirectionChange` function is the functional core—it's pure, encoding the business rule about valid direction changes. The `main` function is the imperative shell—it calls the core, interprets the result, and performs side effects like reading input, logging errors, or mutating the game state.
+The `evaluateDirectionChange` function is the functional core—it's pure, encoding the business rule about the game's behavior on direction changes. The `main` function is the imperative shell—it calls the core, interprets the result, and performs side effects like reading user input, playing sound, or mutating the game state.
 
 ## Where This Leads Next
 That’s basically it. Now you know where the boundary lies and how both sides look at an abstract level. Want something more concrete? Stay tuned, in my next post, I will refine this basic idea in the context of a real-world code example, touching many interesting details along the way.
