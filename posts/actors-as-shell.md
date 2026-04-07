@@ -1,16 +1,13 @@
 *How the Actor Model Strengthens the Functional Core–Imperative Shell Architecture in C++*
- 
-# Introduction 
-This post belongs to the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
 
-Modularity is key for managing complexity. By decoupling parts of a system, we improve separation of concerns, simplify reasoning, reduce bugs, and generally increase maintainability. In short, striving for modularity really pays off. 
-
-How does this principle apply in the context of the *functional core - imperative shell* architecture? In other words, how do we effectively decouple here? This post will show what that can look like through a concrete example and in turn pointing out the benefits in detail.
+The previous post showed how the *functional core–imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side-effects. In consequence the shell must handle all side-effects of the application. But as the application grows the more unrelated effects need to be handled. This results in a shell that is getting messy as it is just doing too much. Which raises the question: how to scale the  *functional core–imperative shell* pattern?
 
 # The Design Idea
- Here's a quick reminder on the *functional core - imperative shell* architecture that I briefly introduced in the post [[interfacing-pure-functions-with-our-impure-world]]: It requires code to live either in the shell or in the core. The shell handles side effects like IO, state or timers in an imperative way. The core contains the business logic implemented as pure functions.
+In order to keep things clean we need to decouple unrelated shell responsibilities. Thus, a single shell isn’t enough, we need multiple ones, each focusing on a subset of side effects to be handled.
 
-So, splitting the core into modules is straightforward as this is mostly about grouping pure functions. But how do we split the shell into pieces? This is where the actor model fits perfectly, thanks to its natural ability to manage side effects. So, the simple yet powerful idea is to combine the actor model with the *functional core - imperative shell* architecture and implement shells as actors. This allows multiple shells to coexist cleanly while still interacting easily with one another. The application then becomes a collection of shell-core pairs, meaning each shell has its own core. Actually, it makes even more sense to put it the other way around: the business logic that is implemented in pure functions is split into multiple cores and each gets its own shell that handles only the side effects required by its core.
+To fully understand what this means let’s look at this design from the business logic point of view: so effectively the business logic is split into multiple cores and each gets its own shell that handles only the side effects required by its core.
+
+To put this idea into practice the actor model is perfectly suited, thanks to its natural ability to manage side effects. So, the simple yet powerful idea is to combine the actor model with the *functional core - imperative shell* pattern and implement shells as actors. This allows multiple shells to coexist cleanly while still being able to interact easily with one another. 
 
 ```mermaid
 flowchart TD
@@ -138,7 +135,7 @@ Of course, this modular design comes with some benefits, let's take a closer loo
 - *Better Maintainability: Independent Scaling*
   You can add another input source, such as a Bluetooth controller, without touching the `GameEngineActor`. You can even add it without touching the existing `InputActor`, just adding another actor that publishes a `DirectionMsg` message. Each module evolves independently.
 
-Actually, there is one more interesting benefit that goes beyond modularity: The actor-based *functional core - imperative shell* design is able to bridge functional with non-functional code within the same application. Because actors interact only through messages, a shell-core pair implemented as an actor can naturally integrate with another actor implemented in a traditional OOP design. That’s really great news, as this means you can utilize functional programming practically for a subset of an application without any compromise. So if you want to start slowly for whatever reason, you can!
+Actually, there is one more interesting benefit that goes beyond modularity: The actor-based *functional core - imperative shell* design is able to bridge functional with non-functional code within the same application cleanly. Because actors interact only through messages, a shell-core pair implemented as an actor can naturally integrate with another actor implemented in a traditional OOP design. That’s really great news, as this means you can utilize functional programming practically for a subset of an application without any compromise. So if you want to start slowly for whatever reason, you can!
 
 # Conclusions
 It turns out that the actor model is perfectly suited for implementing interconnected core–shell pairs. Meaning also in the context of the *functional core – imperative shell* architecture, it's a great tool for achieving clear separation of concerns.
