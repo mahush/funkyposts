@@ -6,7 +6,7 @@ But as the application grows, handling different kinds of side effects (IO, stat
 
 Which raises the crucial question: how do we scale the *functional core – imperative shell* pattern?
 
-# The Design Idea
+## The Design Idea: Actors as Shell
 In order to keep things clean, we need to decouple unrelated shell responsibilities. Thus, a single shell isn’t enough—we need multiple ones, each focusing on a subset of side effects to be handled.
 
 To fully understand what this means, let’s look at this design from the business logic point of view: effectively, the business logic is split into multiple cores, each with its own shell that handles only the side effects it requires.
@@ -34,7 +34,7 @@ ActorB -->|message| ActorC
 ```    
 
 
-# A real world example
+## A real world example
 Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors/tree/v0.1.0) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
 
 However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
@@ -124,7 +124,7 @@ end
 InputActor -->|DirectionMsg| GameEngineActor
 ```    
 
-# Why this scales
+## Why this scales
 Of course, this modular design comes with some benefits, let's take a closer look:
 
 - *Separation of Concerns: Clear Responsibilities and Independent Module Interfaces*
@@ -139,16 +139,17 @@ Of course, this modular design comes with some benefits, let's take a closer loo
 - *Better Maintainability: Independent Scaling*
   You can add another input source, such as a Bluetooth controller, without touching the `GameEngineActor`. You can even add it without touching the existing `InputActor`, just adding another actor that publishes a `DirectionMsg` message. Each module evolves independently.
 
-# Key Advantage: Bridging by Design
+## Key Advantage: Bridging by Design
 Actually, there is another very important benefit that goes beyond modularity: The actor-based *functional core – imperative shell* design is able to bridge naturally functional with non-functional code via inter actor communication. So, the same way actors implemented as shell-core pairs can interact with each other they can also interact with actors implemented in traditional OOP design. This is actually game-changing. You can build a single application that combines traditional OOP design with functional design, with clear boundaries between them. It's not a compromise—it's straightforward design: you choose which actor should follow which design based on your needs and the architecture just supports you there. 
-# Where we arrived at
+
+## Where we arrived at
 The *functional core – imperative shell* pattern scales by structuring the system into multiple core–shell pairs. This decouples unrelated concerns like handling input and advancing game state. In addition, this actor-based separation enables a clean bridge between traditional object-oriented design and a functional approach.
 
 Sure, introducing actors is not for free. The extra abstraction and message passing bring additional complexity that needs to be balanced against the advantages.
 
 However, if you choose this architecture, you get a strong foundation for building modular applications while being able to bridge programming paradigms. In practice, I’ve found the flexibility to incrementally apply functional design where it makes sense extremely valuable—you might agree.
 
-# Outlook
+## Outlook
 This and the previous post touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
 
 Designing clean interfaces for core functions requires a deeper understanding of the underlying mechanics. In the next post, I will take a closer look at state management and how to handle it effectively.
