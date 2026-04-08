@@ -1,4 +1,6 @@
-*How the Actor Model Strengthens the Functional Core – Imperative Shell Architecture in C++*
+# Scaling the Functional Core – Imperative Shell with Actors in C++
+
+*When One Shell Isn’t Enough*
 
 The previous post showed how the *functional core – imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side-effects. In consequence, the shell must handle all side-effects of the application. 
 
