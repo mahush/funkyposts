@@ -1,6 +1,10 @@
 *How the Actor Model Strengthens the Functional Core–Imperative Shell Architecture in C++*
 
-The previous post showed how the *functional core–imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side-effects. In consequence the shell must handle all side-effects of the application. But as the application grows the more unrelated effects need to be handled. This results in a shell that is getting messy as it is just doing too much. Which raises the question: how to scale the  *functional core–imperative shell* pattern?
+The previous post showed how the *functional core–imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side-effects. In consequence the shell must handle all side-effects of the application. 
+
+But as the application grows, handling different kinds of side effects(IO, state, timers) for the entire system in a single place quickly becomes problematic. Too many unrelated concerns end up in one central hub, making the code harder to reason about and maintain.
+
+Which raises the crucial question: how do we scale the *functional core–imperative shell* pattern?
 
 # The Design Idea
 In order to keep things clean we need to decouple unrelated shell responsibilities. Thus, a single shell isn’t enough, we need multiple ones, each focusing on a subset of side effects to be handled.
@@ -30,7 +34,7 @@ ActorB -->|message| ActorC
 ```    
 
 
-
+# A real world example
 Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors/tree/v0.1.0) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
 
 However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
@@ -120,7 +124,7 @@ end
 InputActor -->|DirectionMsg| GameEngineActor
 ```    
 
-
+# Scaling works
 Of course, this modular design comes with some benefits, let's take a closer look:
 
 - *Separation of Concerns: Clear Responsibilities and Independent Module Interfaces*
@@ -135,14 +139,18 @@ Of course, this modular design comes with some benefits, let's take a closer loo
 - *Better Maintainability: Independent Scaling*
   You can add another input source, such as a Bluetooth controller, without touching the `GameEngineActor`. You can even add it without touching the existing `InputActor`, just adding another actor that publishes a `DirectionMsg` message. Each module evolves independently.
 
-Actually, there is one more interesting benefit that goes beyond modularity: The actor-based *functional core - imperative shell* design is able to bridge functional with non-functional code within the same application cleanly. Because actors interact only through messages, a shell-core pair implemented as an actor can naturally integrate with another actor implemented in a traditional OOP design. That’s really great news, as this means you can utilize functional programming practically for a subset of an application without any compromise. So if you want to start slowly for whatever reason, you can!
+# Bonus Feature: Bridging by Design
+Actually, there is another very important benefit that goes beyond modularity: The actor-based *functional core - imperative shell* design is able to bridge naturally functional with non-functional code via inter actor communication. So, the same way actors implemented as shell-core pairs can interact with each other they can also interact with actors implemented in traditional OOP design. This is actually game-changing as this way you can have a single application consisting of traditional OOP design along with functional design with clear edges. It's not a compromise it's straightforward design: You choose which actor should follow which design based on your needs and the architecture just supports you there. 
+# Where we arrived at
+The *functional core – imperative shell* pattern scales when combining it with the actor model. This way unrelated concerns like handling input and advancing game state can get decoupled by separating the related implementation into different core-shell pairs. In addition the separation into actors allows clean bridging of traditional object-oriented design and a functional approach.
 
-# Conclusions
-It turns out that the actor model is perfectly suited for implementing interconnected core–shell pairs. Meaning also in the context of the *functional core – imperative shell* architecture, it's a great tool for achieving clear separation of concerns.
+Sure, introducing actors is not for free. The extra abstraction and the message passing brings additional complexity that need to be balanced with the advantages I pointed out.
 
-In addition the actor model helps bridge clean functional design with other programming paradigms. I’ve found this especially valuable as a practical way to introduce functional programming principles incrementally into my own working environment.
+However, if you decide for this architecture, you get a strong foundation for building clearly structured application while easily being able to bridge programming paradigms. In practice I’ve found the flexibility to choose and incrementally adjust where to apply functional design extremely valuable, you might agree.
 
-So, whether you want to improve your existing functional architecture or utilize functional programming in the first place, this is for you.
+# Outlook
+This post and also the previous one referred to state handling which is shell responsibility. Still the state needs to be read and modified by the core. In order to design straight interfaces of the core's functions a deeper understanding of the mechanics at work is important. In the next post I will dive deeper into state management and clarify how to handle state effectively.
+
 
 ---
-This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
+This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
