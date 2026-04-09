@@ -152,7 +152,7 @@ Sure, introducing actors is not for free. The extra abstraction and message pass
 However, if you choose this architecture, you get a strong foundation for building modular applications while being able to bridge programming paradigms. In practice, I’ve found the flexibility to incrementally apply functional design where it makes sense extremely valuable—you might agree.
 
 ## Outlook
-This and the previous post touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
+This and the previous [post](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world) touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
 
 Designing clean interfaces for core functions requires a deeper understanding of the underlying mechanics. In the next post, I will take a closer look at state management and how to handle it effectively.
 
