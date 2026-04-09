@@ -129,16 +129,16 @@ InputActor -->|DirectionMsg| GameEngineActor
 ## Why this scales
 Of course, this modular design comes with some benefits, let's take a closer look:
 
-- *Separation of Concerns: Clear Responsibilities and Independent Module Interfaces*
+- **Separation of Concerns: Clear Responsibilities and Independent Module Interfaces**
 	The input handling and game logic are completely decoupled. Each actor has a narrow, focused responsibility. The `DirectionMsg` forms their connection point which is independent of any specific actor, so the modules don’t depend on each other directly—they only agree on a shared data contract. This keeps the boundaries clean and prevents any form of tight coupling.
 
-- *Simplified Reasoning: Localized Complexity*
+- **Simplified Reasoning: Localized Complexity**
 	Complexity is distributed across multiple shells. Each shell only handles its own side effects. The `GameEngineActor` doesn't care about publishing direction messages, and the `InputActor` doesn't deal with the game state or the game loop timer. Each part remains small and understandable.
 
-- *Fewer Bugs: Concurrency and Isolation*
+- **Fewer Bugs: Concurrency and Isolation**
 	Processing key events and running the game loop happen asynchronously. Key events occur sporadically, while the game loop runs periodically via a timer. Each actor has its own single-threaded execution environment and processes events such as incoming messages or timer expirations sequentially. This eliminates low-level multithreading issues such as data races, because there is no shared mutable state and therefore no need for manual synchronization. Anyone who has spent days debugging low-level multithreading issues knows how valuable such a design is.
 
-- *Better Maintainability: Independent Scaling*
+- **Better Maintainability: Independent Scaling**
   You can add another input source, such as a Bluetooth controller, without touching the `GameEngineActor`. You can even add it without touching the existing `InputActor`, just adding another actor that publishes a `DirectionMsg` message. Each module evolves independently.
 
 ## Key Advantage: Bridging by Design
