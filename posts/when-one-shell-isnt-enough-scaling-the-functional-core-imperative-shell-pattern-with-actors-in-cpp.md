@@ -18,15 +18,15 @@ To put this idea into practice, the actor model is perfectly suited, thanks to i
 ```mermaid
 flowchart TD
 
-subgraph ActorA["Actor"]
+subgraph ActorA["Imperative Shell (Actor)"]
     CoreA["Functional Core"]
 end
 
-subgraph ActorB["Actor"]
+subgraph ActorB["Imperative Shell (Actor)"]
     CoreB["Functional Core"]
 end
 
-subgraph ActorC["Actor"]
+subgraph ActorC["Imperative Shell (Actor)"]
     CoreC["Functional Core"]
 end
 
