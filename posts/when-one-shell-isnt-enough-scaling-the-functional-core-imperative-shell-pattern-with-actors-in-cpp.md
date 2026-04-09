@@ -1,6 +1,6 @@
-# Scaling the Functional Core – Imperative Shell with Actors in C++
+# When One Shell Isn’t Enough: Scaling the Functional Core–Imperative Shell Pattern with Actors in C++
 
-*When One Shell Isn’t Enough*
+*How to structure growing C++ systems into multiple actor-driven core–shell pairs*
 
 The previous post showed how the *functional core–imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side effects. In consequence, the shell must handle all side-effects of the application. 
 
