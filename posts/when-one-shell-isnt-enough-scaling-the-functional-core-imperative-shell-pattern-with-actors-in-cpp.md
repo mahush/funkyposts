@@ -158,4 +158,5 @@ Designing clean interfaces for core functions requires a deeper understanding of
 
 
 ---
-Part of the *funkyposts* blog — Bridging object-oriented and functional thinking in C++ by applying functional thinking to solve real-world C++ design problems—practical, experience-driven, beyond theory. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
+Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
+Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
