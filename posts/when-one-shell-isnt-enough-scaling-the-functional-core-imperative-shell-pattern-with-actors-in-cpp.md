@@ -2,7 +2,7 @@
 
 *How to structure growing C++ systems into multiple actor-driven core–shell pairs*
 
-The previous post showed how the *functional core–imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side effects. In consequence, the shell must handle all side-effects of the application. 
+The previous [post](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world) showed how the *functional core–imperative shell* pattern separates code into a pure part where the business logic is implemented and an effectful part that calls the pure one and handles its side effects. In consequence, the shell must handle all side-effects of the application. 
 
 But as the application grows, handling different kinds of side effects (IO, state, timers) for the entire system in a single place quickly becomes problematic. Too many unrelated concerns end up in one central hub, making the code harder to reason about and maintain.
 
