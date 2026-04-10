@@ -58,7 +58,7 @@ This message is published by the `InputActor` that is responsible for handling u
 class InputActor : public Actor<InputActor> {
 	public:
 		InputActor(ActorContext ctx, 
-					  TopicPtr<DirectionMsg> direction_topic)
+				   TopicPtr<DirectionMsg> direction_topic)
 		: Actor{ctx},
 		  direction_pub_{create_pub(std::move(direction_topic))} {}
 		  
@@ -87,8 +87,8 @@ The `GameEngineActor` receives the `DirectionMsg` message and applies it to its 
 class GameEngineActor : public Actor<GameEngineActor> {
 	public:
 		GameEngineActor(ActorContext ctx, 
-							 TopicPtr<DirectionMsg> direction_topic,
-						    TimerFactoryPtr timer_factory)
+						TopicPtr<DirectionMsg> direction_topic,
+						TimerFactoryPtr timer_factory)
 		: Actor(ctx),
 		  direction_sub_(create_sub(direction_topic)),
 		  game_loop_timer_(create_timer<GameTimer>(timer_factory)) {}
