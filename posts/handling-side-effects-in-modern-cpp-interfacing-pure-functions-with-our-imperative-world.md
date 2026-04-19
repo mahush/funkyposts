@@ -90,4 +90,5 @@ But as applications grow, a new problem appears: the shell starts accumulating u
 In my next post, I will show how to refine this design further so these responsibilities can be separated cleanly as well.
 
 ---
-Part of the *funkyposts* blog — blogging to bridge traditional C++ and functional programming by exploring how functional patterns and architectural ideas can be applied in modern C++. Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v03)
+Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
+Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v04)
