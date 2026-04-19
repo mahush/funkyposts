@@ -31,15 +31,19 @@ and *runtime dependencies*:
 
 Every issue we looked at comes down to this: dependencies force parts of the system to change together, to be set up together, and to be understood together. As they accumulate, complexity grows increasingly fast.
 ## What Functional Thinking Unlocks 
-At that point, I started questioning the design ideas I was following for years and searched for different ways of structuring my code. The blog post [Mocking is Code Smell](https://medium.com/javascript-scene/mocking-is-a-code-smell-944a70c90a6a) helped me see this more clearly. It also pushed me to explore functional ideas that turned out to be particularly useful. Put simply, functional programming offers techniques that can greatly complement a traditional C++ toolbox.  
+So, I started questioning the design ideas I was following for years and searched for different ways of structuring my code to better manage these dependencies. The blog post [Mocking is Code Smell](https://medium.com/javascript-scene/mocking-is-a-code-smell-944a70c90a6a) helped me see this more clearly. It also pushed me to explore functional ideas that turned out to be particularly useful. Put simply, functional programming offers techniques that can greatly complement a traditional C++ toolbox.  
 
-The key idea is to reduce dependencies and make the remaining ones explicit and simpler. One effective way to achieve this is to use pure functions as building blocks for your logic. This reduces dependency complexity in several ways:
-- Instead of relying on injected objects, pure functions receive all dependencies explicitly as input. This eliminates implicit dependencies and the need for mocking via dependency injection.
-- The interface of pure functions is usually smaller and narrower than the interface of a class, which keeps dependencies simpler.
-- There is no inheritance hierarchy, removing an entire class of structural dependencies 
+The key idea is to reduce dependencies and make the remaining ones explicit and simpler. One effective way to achieve this is to use pure functions as building blocks for your logic. 
+
+The deeper reason this helps is that pure functions cannot hide side effects inside themselves. So if you structure logic this way, side effects like IO or state changes must be handled explicitly elsewhere. This naturally separates logic from side-effect handling:
+- Pure functions receive all dependencies explicitly as input, instead of relying on injected objects. This eliminates implicit dependencies and significantly reduces the need for mocking.
 - In a world of pure functions, there is no hidden state, so no implicit dependencies on state.
 
-In conclusion, when you compose your business logic out of pure functions, dependencies become explicit, fewer, and simpler. This directly mitigates complexity. The design becomes simpler, reasoning improves, testing gets easier, maintainability improves.
+Beyond this architectural shift, organizing logic as pure functions also reduces dependency complexity because logic is expressed as functions instead of objects:
+- The interface of pure functions is usually smaller and narrower than the interface of a class, which keeps dependencies simpler.
+- There is no inheritance hierarchy, removing an entire class of structural dependencies 
+
+In conclusion, when you compose your business logic out of pure functions, dependencies become explicit, fewer, and simpler. This directly mitigates complexity. The design becomes simpler, reasoning improves, testing gets easier, and maintainability improves.
 
 Just to be clear, I am not saying functional programming is going to solve all problems, nor that it’s applicable in C++ without limits. I am saying there are aspects that are highly valuable when designing C++ systems. So, I advocate for complementing with FP where appropriate.
 ## If This Resonates
