@@ -31,7 +31,7 @@ flowchart TD
 
 One important design aspect is the direction of dependencies: the shell depends on the core, but the core is independent of the shell. This prevents state, IO, or other external concerns from leaking into the business logic and keeps the core self-contained.
 
-This separation changes where dependencies are located. The core logic no longer depends on state, timing, or external systems—it operates purely on input values. All remaining dependencies are contained in the shell, where they are handled explicitly.
+This separation changes where dependencies are located. The core logic no longer depends on internal state, timing, or external systems—it operates purely on input values. All remaining dependencies are contained in the shell, where they are handled explicitly.
 
 As a consequence, reasoning about the logic becomes straightforward, and testing follows naturally: you call the function with input values and verify the result—without heavy mocking, dependency injection, or complex setup.
 ## Applying the Pattern in C++
@@ -104,6 +104,7 @@ So for the core, the dependency situation improves substantially.
 
 - state still exists
 - state still evolves
+- but state is not centralized in the shell, no more distributed across the logic
 - effect handling still exists
 - dependency complexity is not removed, only **pushed outward and localized**
 
