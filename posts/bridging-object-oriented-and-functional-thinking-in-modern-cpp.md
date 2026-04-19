@@ -20,14 +20,11 @@ Actually state handling in a traditional OOP manner has another problematic dime
 
 Interestingly, testing just makes these problems visible—but they exist in the design itself. E.g. the tight coupling of implementations sharing an interface can be described more generally as: **Inheritance creates tight coupling within the hierarchy**. So, once a class hierarchy is established, the base class interface becomes almost impossible to change without impacting every derived class. This gets worse the deeper the hierarchy is. Even small adjustments propagate through, making class hierarchies inflexible and expensive to modify.
 
-Let's step back and draw conclusions. All these problems create a lot of complexity. This way they cause the pain described in the beginning. But there is more to understand here: **The root cause is dependency**—complexity emerges as different kinds of dependencies accumulate.
-
-Looking more closely at the kinds of dependencies reveals *structural dependencies*: 
-- the more injected dependencies exist the more mocks are required
-- the more functions an interface has the more complex the dependency between components sharing this interface gets
+Let's step back and draw conclusions. All these problems create a lot of complexity. This way they cause the pain described in the beginning. But there is more to understand here: **The root cause is dependency**—complexity emerges as different kinds of dependencies accumulate: 
+- more injected dependencies require more mocks
+- the more functions an interface has, the more complex the dependency between components sharing it becomes
 - inheritance causes dependencies between classes within hierarchies
-and *runtime dependencies*:
-- hidden, implicit, cluttered state creates indirect dependencies all over the system
+- hidden, cluttered, and evolving state creates implicit dependencies across the system
 
 Every issue we looked at comes down to this: dependencies force parts of the system to change together, to be set up together, and to be understood together. As they accumulate, complexity grows increasingly fast.
 ## What Functional Thinking Unlocks 
