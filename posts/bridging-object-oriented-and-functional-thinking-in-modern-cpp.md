@@ -21,12 +21,12 @@ Actually state handling in a traditional OOP manner has another problematic dime
 Interestingly, testing just makes these problems visible—but they exist in the design itself. E.g. the tight coupling of implementations sharing an interface can be described more generally as: **Inheritance creates tight coupling within the hierarchy**. So, once a class hierarchy is established, the base class interface becomes almost impossible to change without impacting every derived class. This gets worse the deeper the hierarchy is. Even small adjustments propagate through, making class hierarchies inflexible and expensive to modify.
 
 Let's step back and draw conclusions. All these problems create a lot of complexity. This way they cause the pain described in the beginning. But there is more to understand here: **The root cause is dependency**—complexity emerges as different kinds of dependencies accumulate: 
-- more injected dependencies require more mocks
-- the more functions an interface has, the more complex the dependency between components sharing it becomes
+- components dependent on each other based on injection can only be executed in isolation by introducing mocks
+- the broader an interface, the more complex the dependency between components sharing it
 - inheritance causes dependencies between classes within hierarchies
-- hidden, cluttered, and evolving state creates implicit dependencies across the system
+- hidden, distributed, and evolving state creates implicit dependencies across the system
 
-Every issue we looked at comes down to this: dependencies force parts of the system to change together, to be set up together, and to be understood together. As they accumulate, complexity grows increasingly fast.
+Every issue we looked at comes down to this: dependencies force parts of the system to change together, to be set up together, and to be understood together. As they enforce each other, complexity grows increasingly fast.
 ## What Functional Thinking Unlocks 
 So, I started questioning the design ideas I was following for years and searched for different ways of structuring my code to better manage these dependencies. The blog post [Mocking is Code Smell](https://medium.com/javascript-scene/mocking-is-a-code-smell-944a70c90a6a) helped me see this more clearly. It also pushed me to explore functional ideas that turned out to be particularly useful. Put simply, functional programming offers techniques that can complement a traditional C++ toolbox.  
 
@@ -39,7 +39,7 @@ These techniques work because they change how we design systems—and with that,
 In conclusion, when you compose your business logic out of pure functions, dependencies become explicit, fewer, and simpler. This directly mitigates complexity.
 The design becomes clearer, and as a result, reasoning, testing, and maintenance improve.
 
-Just to be clear, I am not saying functional programming is going to solve all problems, nor that it’s applicable in C++ without limits. I am saying there are aspects that are highly valuable when designing C++ systems. So, I advocate for complementing with FP where appropriate.
+Just to be explicit, I am not saying functional programming is going to solve all problems, nor that it’s applicable in C++ without limits. I am saying there are aspects that are highly valuable when designing C++ systems. So, I advocate for complementing with FP where appropriate.
 ## If This Resonates
 Adopting a different way of structuring code takes effort, and how much depends on your learning path. If you’re coming from an OOP-heavy, C++-style background like I did, I might speak your language well enough to further clarify these techniques and design choices. 
 
