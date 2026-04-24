@@ -116,33 +116,6 @@ All the side effect handling is now centralized in the shell. As the application
 
 In my next post, I will show how to refine this design further to better organize the application to address scaling.
 
-
----
-
-Post 2 makes hidden dependencies disappear from business logic. This does not eliminate state and side effects from the system, but it prevents them from being mixed into the core logic.
-
-The main achievement of functional core / imperative shell is not removing complexity from the whole system, but removing hidden dependency complexity from the business logic and localizing the rest.
-
-
-
-: you call the function with input values and verify the result—without heavy mocking, dependency injection, or complex setup.
-
-
-So for the core, the dependency situation improves substantially.
-
-So the shell remains the place where complexity can accumulate.
-
-The *functional core–imperative shell* pattern works well for decoupling business logic from side effects. So our business logic is clean, that's already a great achievement.
-
-Make it slightly more explicit what problem it solves:
-
-- fear of rewrite
-- risk of architectural change
-- incompatibility with existing OOP code
-
-The *functional core–imperative shell* pattern allows you to clearly distinguish between the imperative and the pure worlds, while having them bridged via simple function calls.
-
-
 ---
 Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
 Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v04)
