@@ -94,7 +94,9 @@ The separation into core and shell shifts how business logic is structured and h
 - side effect handling (IO, state mutation) is no longer distributed across the business logic but centralized outside of it
 - state is no more hidden and implicitly mutated but visible at the top level and explicitly passed into the core and returned
 
-Looking at this through the lens of dependencies from the previous post, the picture changes as follows:
+Together, these changes introduce an explicit interface between the pure business logic and the effectful parts of the system at the cost of introducing additional types to describe those effects.
+
+Looking at it through the lens of dependencies from the previous post, the situation improves as follows:
 - the business logic has no dependencies on external systems
 - fewer places in the system depend on IO or state mutation, and these dependencies are localized instead of spread across the system
 - state dependencies are explicit: the business logic depends only on input data passed in and returned, not on internal mutable state
