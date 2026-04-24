@@ -72,16 +72,16 @@ int main() {
     Direction snake_direction = Direction::Right;
 
     while (true) {
-        Direction input = readUserInput();  // effectful
+        Direction requested_direction = readUserInput();  // effectful
 
-        auto result = evaluateDirectionChange(snake_direction, input); // calling core
+        auto result = evaluateDirectionChange(snake_direction, requested_direction); // calling core
 
         if (result.sound_effect != SoundEffect::None) {
             playSound(result.sound_effect);  // effectful
         }
 
         if (result.direction_changed) {
-            snake_direction = input;  // effectful
+            snake_direction = requested_direction;  // effectful
         }
     }
 }
