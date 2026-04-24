@@ -105,17 +105,16 @@ In addition, effect handling becomes easier to understand and control, as it is 
 
 So, the main achievement of *functional core–imperative shell* is removing hidden dependency complexity from the business logic and localizing the rest.
 
+## Starting Small Works Well
+Although this is a fundamental shift in how to deal with side effects, it doesn’t require an all-or-nothing redesign. The pattern works for a subset of your business logic, so you can apply it locally, one part of the system at a time. 
+
+Start by moving effectful behavior out of a single piece of business logic while leaving the surrounding structure in place. From there, you can incrementally restructure more of the system step by step.
+
 ## Where This Leads Next
 
-All the side effect handling is now centralized in the shell. As the application grows this  still accumulates complexity. Even in a simple snake game, this escalates quickly: handling user input, playing sound, managing the game state, and performing screen IO.
+All the side effect handling is now centralized in the shell. As the application grows this accumulates complexity there. Even in a simple snake game, this escalates quickly: handling user input, playing sound, managing the game state, and performing screen IO.
 
-In my next post, I will show how to refine this design further to organize the remaining complexity in a clean way.
-
-## Starting Small Works Well
-
-Yes, this is a fundamental shift in how to deal with side effects. But it doesn’t invalidate your existing C++ design. You don't need to start from scratch to shift where effectful behavior takes place. 
-
-This is not an all-or-nothing approach—in practice you can start small. The pattern works also for a subset of your business logic. Take a piece of code and split out the side effects. Already with the first step you gain better testability and reasoning for the resulting pure world code as described in the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp). Then incrementally move more side effects to the edges.
+In my next post, I will show how to refine this design further to better organize the application to address scaling.
 
 
 ---
