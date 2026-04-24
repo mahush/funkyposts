@@ -8,11 +8,11 @@ But applying this idea in a real system, isn't straightforward: Although you wan
 
 This leads to a practical design question: how do we structure systems so that side effects are decoupled from the business logic?
 ## Decoupling Logic and Side Effects
-The key idea is clear separation on highest level. So, instead of mixing business logic and side effects in the same place, one part of the system focuses on logic, while another is dedicated to side effect handling.
+The key idea is clear separation at the system level. So, instead of mixing business logic and side effects in the same place, one part of the system focuses on logic, while another is dedicated to side effect handling.
 
 In this setup the logic still determines which effects should happen, but without performing them directly. Instead, it describes what needs to happen, and the surrounding code interprets and performs the effects.
 
-If this reminds you of the command pattern, you’re not wrong—but here it’s about how you organize the system. And this is exactly the separation that structuring logic as pure functions naturally leads to.
+If this reminds you of the command pattern, that’s not a coincidence—but here the idea is used to organize the entire system. And this is exactly the separation that structuring logic as pure functions naturally leads to.
 
  For example, a pure function decides to create a log message, so it returns a string and the caller interacts with the outside world by printing it to stderr.
  
@@ -103,7 +103,7 @@ As a consequence, reasoning about the business logic becomes significantly easie
 
 In addition, effect handling becomes easier to understand and control, as it is no longer spread across the logic but centralized in one place.
 
-So, the main achievement of *functional core–imperative shell* is removing hidden dependency complexity from the business logic and localizing the rest.
+So, the main achievement of *functional core–imperative shell* is removing hidden dependencies from the business logic and localizing the remaining ones.
 
 ## Starting Small Works Well
 Although this is a fundamental shift in how to deal with side effects, it doesn’t require an all-or-nothing redesign. The pattern works for a subset of your business logic, so you can apply it locally, one part of the system at a time. 
