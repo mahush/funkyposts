@@ -4,7 +4,7 @@
 
 In the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), we saw why structuring business logic without side effects—using pure functions—effectively mitigates dependencies and makes code easier to reason about and test.
 
-But applying this idea in a real system, isn't straightforward: Although you want your functions without side effects, the application you are building still must perform IO and maintain state to be useful.
+But applying this idea in a real system isn't straightforward: Although you want your functions without side effects, the application you are building still must perform IO and maintain state to be useful.
 
 This leads to a practical design question: how do we structure systems so that side effects are decoupled from the business logic?
 ## Decoupling Logic and Side Effects
@@ -113,7 +113,6 @@ Although this is a fundamental shift in how to deal with side effects, it doesn�
 Start by moving effectful behavior out of a single piece of business logic while leaving the surrounding structure in place. From there, you can incrementally restructure more of the system step by step.
 
 ## Where This Leads Next
-
 All the side effect handling is now centralized in the shell. As the application grows this accumulates complexity there. Even in a simple snake game, this escalates quickly: handling user input, playing sound, managing the game state, and performing screen IO.
 
 In my next post, I will show how to refine this design further to better organize the application to address scaling.
