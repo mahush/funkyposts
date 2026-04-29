@@ -2,7 +2,7 @@
 
 **How to structure growing C++ systems into actor-driven core–shell pairs that isolate dependencies**
 
-The previous [post](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world) showed how the *functional core–imperative shell* pattern decouples the business logic from side effect handling by centralizing all side effects in the shell.
+The previous [post](handling-side-effects-in-modern-cpp-designing-systems-around-pure-functions.md) showed how the *functional core–imperative shell* pattern decouples the business logic from side effect handling by centralizing all side effects in the shell.
 
 But as the application grows, handling different kinds of side effects (IO, state, timers) for the entire system in a single place quickly becomes problematic: more and more unrelated concerns end up sharing the same context. As a consequence, they can accidentally influence each other, or at least make it harder to see which dependencies actually exist. The shell has to be sorted out again and again, making the code harder to reason about and maintain.
 
@@ -157,7 +157,7 @@ However, when that additional structure is justified, you gain valuable isolatio
 On top of that, it enables clean bridging between traditional object-oriented design and a functional approach. In practice, I’ve found the flexibility to incrementally apply functional design where it makes sense extremely valuable—you might agree.
 
 ## Outlook
-This and the [previous post](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world) touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
+This and the [previous post](handling-side-effects-in-modern-cpp-designing-systems-around-pure-functions.md) touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
 
 Designing clean interfaces for core functions requires a deeper understanding of how state is represented and passed. In the next post, I will take a closer look at state management and how to handle it effectively.
 
