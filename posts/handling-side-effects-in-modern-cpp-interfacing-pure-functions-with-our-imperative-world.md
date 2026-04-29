@@ -113,7 +113,7 @@ Although this is a fundamental shift in how to deal with side effects, it doesnâ
 ## Where This Leads Next
 All the side effect handling is now centralized in the shell. As the application grows this accumulates complexity there. Even in a simple snake game, this escalates quickly: handling user input, playing sound, managing the game state, and performing screen IO.
 
-In my next post, I will show how to refine this design further to better organize the application to address scaling.
+In my [next post](when-one-shell-isnt-enough-scaling-the-functional-core-imperative-shell-pattern-with-actors-in-cpp), I will show how to refine this design further to better organize the application to address scaling.
 
 ---
 Part of the *funkyposts* blog â€” bridging object-oriented and functional thinking in C++.
