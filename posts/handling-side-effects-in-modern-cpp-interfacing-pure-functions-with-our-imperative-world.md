@@ -14,7 +14,7 @@ In this setup the logic still determines which effects should happen, but withou
 
 If this reminds you of the command pattern, that’s not a coincidence—but here the idea is used to organize the entire system. And this is exactly the separation that structuring logic as pure functions naturally leads to.
 
- For example, a pure function decides to create a log message, so it returns a string and the caller interacts with the outside world by printing it to stderr.
+For example, a pure function decides to create a log message, so it returns a string and the caller interacts with the outside world by printing it to stderr.
  
 ## The Functional Core–Imperative Shell Pattern
 This simple structure is called *functional core–imperative shell*: it splits an application into a functional core and an imperative shell.
