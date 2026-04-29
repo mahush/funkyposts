@@ -1,6 +1,6 @@
 # Handling Side Effects in Modern C++: Designing Systems Around Pure Functions
 
-*Using the functional core–imperative shell pattern*
+*Using the functional core–imperative shell pattern to mitigate dependencies*
 
 In the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), we saw why structuring business logic without side effects—using pure functions—effectively mitigates dependencies and makes code easier to reason about and test.
 
