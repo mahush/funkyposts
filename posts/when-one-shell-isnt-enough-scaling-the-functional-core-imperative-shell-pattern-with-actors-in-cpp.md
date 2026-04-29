@@ -37,9 +37,9 @@ ActorB -->|message| ActorC
 
 
 ## A Real-World Example
-Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors/tree/v0.1.0) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean although it has similar semantics to ROS2 in terms of topic based message passing. 
+Let’s see this design in action with an example from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project. I prototyped [the actor implementation there](https://github.com/mahush/funkyactors/tree/v0.1.0) on top of the [Asio framework](https://github.com/chriskohlhoff/asio). It's quite lean, although it has similar semantics to ROS2 in terms of topic-based message passing. 
 
-However, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
+Building on this, the *funkysnakes* game implementation is distributed across multiple actors, each following the core–shell pattern as described above.
 
 Let's focus on two actors that are connected by a topic that communicates the `DirectionMsg`, representing a requested direction for the player's snakes.
 
@@ -141,9 +141,9 @@ Of course, this modular design comes with some benefits, let's take a closer loo
 - **Better Maintainability: Independent Scaling**
 	You can add another input source, such as a Bluetooth controller, without touching the `GameEngineActor`. You can even add it without touching the existing `InputActor`, just adding another actor that publishes a `DirectionMsg` message. Each module evolves independently.
 
-Applying the dependency lens from the intro post gives another perspective on why this design scales: it’s not just the separation itself, but how it constrains dependencies. By isolating actors from each other, all cross-actor dependencies are ruled out upfront except those explicitly expressed through message passing. Without shared state or a shared execution context, message passing is the only way for parts of the system to influence each other. As a result, the system becomes easier to reason about, test, and evolve because fewer parts are able to influence each other.
+Applying the dependency lens from the [intro post](bridging-object-oriented-and-functional-thinking-in-modern-cpp) gives another perspective on why this design scales: it’s not just the separation itself, but how it constrains dependencies. By isolating actors from each other, all cross-actor dependencies are ruled out upfront except those explicitly expressed through message passing. Without shared state or a shared execution context, message passing is the only way for parts of the system to influence each other. As a result, the system becomes easier to reason about, test, and evolve because fewer parts are able to influence each other.
 ## Key Advantage: Bridging by Design
-Actually, there is another very important benefit that goes beyond modularity: The actor-based *functional core–imperative shell* design is able to bridge naturally object-oriented and functional code via inter-actor communication.
+There is another very important benefit that goes beyond modularity: The actor-based *functional core–imperative shell* design is able to bridge naturally object-oriented and functional code via inter-actor communication.
 
 This is powerful in practice because the actor boundary lets both styles coexist without forcing the whole system into one paradigm. It's not a compromise—it's straightforward design: you choose which actor should follow which design based on your needs and the architecture just supports that choice. 
 
@@ -157,7 +157,7 @@ However, when that additional structure is justified, you gain valuable isolatio
 On top of that, it enables clean bridging between traditional object-oriented design and a functional approach. In practice, I’ve found the flexibility to incrementally apply functional design where it makes sense extremely valuable—you might agree.
 
 ## Outlook
-This and the previous [post](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world) touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
+This and the [previous post](handling-side-effects-in-modern-cpp-interfacing-pure-functions-with-our-imperative-world) touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
 
 Designing clean interfaces for core functions requires a deeper understanding of how state is represented and passed. In the next post, I will take a closer look at state management and how to handle it effectively.
 
