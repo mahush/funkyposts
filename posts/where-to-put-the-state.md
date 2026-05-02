@@ -1,12 +1,13 @@
 
-# Introduction
+- state is no more hidden and implicitly mutated but visible at the top level and explicitly passed into the core and returned
+- state dependencies are explicit: the business logic depends only on input data passed in and returned, not on internal mutable state
 
-This post belongs to the *funkyposts* blog, where I explore functional programming patterns applicable in a C++ environment and grounded in clear code examples.
 
-Pure functions are at the heart of functional programming. So, if you want to go functional and in turn gain its benefits you must put your logic into functions that are free of side effects. This is straightforward until you want side effects—like state—to come into play. I was raised in an OOP world where state is by design tightly coupled to functions. While it's not that hard, it took me a while to understand how to effectively separate functions and their state.
+In an earlier post, we saw that the _functional core – imperative shell_ pattern reduces complexity by centralizing state mutation in the shell, turning hidden state dependencies into explicit ones.
 
-I found the *functional core - imperative shell* architecture especially helpful to sort things out. So this post shows what state handling can look like when following this architectural idea.
+The underlying idea is simple: keep state out of the business logic. But putting this into practice is not: how can the business logic still evolve state that lives elsewhere—and why does this make dependencies explicit?
 
+Without a clear model at the code level, state easily becomes an implicit dependency again—undermining the whole design.
 # The Design Idea
 
 Here's a quick reminder of the *functional core - imperative shell* architecture: It requires code to live either in the shell or in the core. The shell handles side effects like IO, state or timers in an imperative way. The core contains the business logic implemented as pure functions.
