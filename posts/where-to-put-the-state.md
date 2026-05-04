@@ -1,18 +1,18 @@
 
-- state is no more hidden and implicitly mutated but visible at the top level and explicitly passed into the core and returned
-- state dependencies are explicit: the business logic depends only on input data passed in and returned, not on internal mutable state
-
-
 In an earlier post, we saw that the _functional core – imperative shell_ pattern reduces complexity by centralizing state mutation in the shell, turning hidden state dependencies into explicit ones.
 
 The underlying idea is simple: keep state out of the business logic. But putting this into practice is not: how can the business logic still evolve state that lives elsewhere—and why does this make dependencies explicit?
 
 Without a clear model at the code level, state easily becomes an implicit dependency again—undermining the whole design.
-# The Design Idea
+## How State Flows Through Core and Shell
+The **functional core – imperative shell** pattern separates business logic from side effects. State handling is just another side effect, so the core's constraint here is: Although the business logic drives state changes, it is not allowed to persist and mutate state directly. 
 
-Here's a quick reminder of the *functional core - imperative shell* architecture: It requires code to live either in the shell or in the core. The shell handles side effects like IO, state or timers in an imperative way. The core contains the business logic implemented as pure functions.
+This is resolved by letting state live in the shell, while the core receives it as input and returns updates. So, state evolution follows a clear pattern:
+- **persisted in the shell**: the shell holds the current state and passes it as data into a core function  
+- **driven by the core**: the core function computes and returns an updated state  
+- **mutated in the shell**: the shell applies the returned state  
 
-But where is state supposed to be located in this architecture? Actually it's quite simple: The state lives in the shell, passed to the core‘s functions and updated with their results.
+This way, the business logic still determines how state evolves—but without persisting or mutating it.
 
 ```mermaid
 flowchart TD
@@ -26,59 +26,60 @@ pure functions"]
 Shell -->|"state passed as data"| Core
 Core -->|"updated state returned"| Shell
 ```
+Let’s dive into an example, to see how state flows between shell and core
+## Seeing It in Code
+Here is a concrete example from my [funkysnakes github project](https://github.com/mahush/funkysnakes/tree/v0.1.0) that illustrates the pattern clearly. The project implements the actor-based *functional core–imperative shell* architecture introduced in an [earlier post](when-one-shell-isnt-enough-scaling-the-functional-core-imperative-shell-pattern-with-actors-in-cpp). 
 
-Let’s dive into an example from *funkysnakes*, so that it’s getting tangible. The `GameEngineActor` holds the `GameState` struct that aggregates various sub states. By the way, you can find the complete code in [the funkysnakes github repository](https://github.com/mahush/funkysnakes/tree/v0.1.0).
+In this example, the snakes are part of the game state, and moving them means evolving that state.
 
+The `GameEngineActor`, as shell, holds the `GameState` struct that aggregates the relevant sub-states:
 ```c++
+// Shell: where state is persisted
 class GameEngineActor : public Actor<GameEngine> {
   ...
   
+  struct GameState {
+    PerPlayerSnakes snakes;
+    FoodItems food_items;
+    Board board;
+  };
   GameState state_;
 };
 ```
 
+The core provides the pure function `moveSnakes` depending on the sub-states `snakes`, `board`, and `food_items`. It advances the snakes by one step, returning updated `snakes` while `board` and `food_items` are only read:
 ```c++
-struct GameState {
-  PerPlayerSnakes snakes;
-  FoodItems food_items;
-  Board board;
-  ...
-};
-```
-
-There is a pure function `moveSnakes` relying on the sub-states `snakes`, `board` and `food_items`. It is responsible for advancing the snakes in the game by one step. Therefore the `snakes` state is mutated while the `board` and `food_items` state is just read.
-
-```c++
+// Core: where state evolution is driven
 PerPlayerSnakes moveSnakes(PerPlayerSnakes snakes, const Board& board, const FoodItems& food_items);
 ```
 
-Eventually `moveSnakes` is called within the game loop by the `GameEngineActor`.
-
+Finally, `moveSnakes` is called by the shell within the game loop of the `GameEngineActor`:
 ```c++
+// Shell: where state is mutated
 state_.snakes = moveSnakes(state_.snakes, state_.board, state_.food_items);
 ```
 
-Now that we can point to some code, let's sort things out. 
+This example maps to the *functional core–imperative shell* design:
+- the core is the pure function `moveSnakes` and the data structures it operates on  
+- the shell is the `GameEngineActor`, which holds and mutates the state  
+- both connect at the function call, where the core’s result is applied to the state
 
-First, the `moveSnakes` function itself belongs to the core, because that is what the core is about - pure functions. 
-
-Second, the Sub-State data structures `PerPlayerSnakes`, `Board` and `FoodItems` are also part of the core. This is because according to the *functional core - imperative shell* architecture, there is no dependency from core to shell, instead the core is self-contained. This way the logic encapsulated by `moveSnakes` can be implemented and tested completely decoupled from the shell.
-
-Third, the instantiated `GameState` within the `GameEngineActor` belongs to the shell. The same applies to the actual call of `moveSnakes`. Thus managing state by invoking core functions is a shell responsibility. 
-
-Fourth, it's interesting to take a closer look at how shell and core perceive state differently. From the shell's point of view, the `GameState` is data persistent across multiple calls and mutated by calls like `moveSnakes`. As persisting and mutating is what makes data state, the shell actually sees `GameState` as state. From the core's point of view, however, there's no notion of state - only data passed in and potentially returned. This is exactly the magic that allows pure functions to eventually mutate state.
+A key detail is how state is perceived differently. In the shell, `GameState` persists across calls and is mutated over time—this is what makes it state. In the core, however, there is no notion of state—only data passed in and returned. This is exactly what allows pure functions to drive state changes without mutating state themselves.
 
 So now that we have a clear picture about the mechanics at work, we can reflect on the advantages we get here.
 
-# Benefits
- 
-I really like this design for its *transparency*. All state appears at the top level, making it obvious that state exists. State changes are explicit and easy to follow, rather than hidden deep inside objects as is often the case in nested OOP designs.
+## What This Design Gives You
+Looking at this design through the lens of dependencies reveals why these benefits arise:
 
-There's also high *flexibility* in which state can be processed by which function. Here the `snakes` sub-state is mutated, but depends on the `board` and the currently existing `food_items`. As you can see, whatever data a pure function needs can simply be passed in by the shell.
+I really like this design for its *transparency*. All state appears at the top level, making it obvious that state exists. State changes are explicit and easy to follow, rather than hidden deep inside objects as is often the case in nested OOP designs. What makes this possible is that state dependencies are no longer hidden, but explicit.
 
-And another great benefit of this design is that it improves *testability* significantly. In my experience testing stateful code is usually complex. To test a specific behavior, you first need to get your software into the right state. This means using the regular API, test-specific APIs, or mocks. But with pure functions, you simply pass in whatever state you need. It's as simple as it can get. Testing the shell itself is straightforward too. It's just an integration test independent of any specific logic.
+There's also high *flexibility* in which state can be processed by which function. Here the `snakes` sub-state is mutated, but depends on the `board` and the currently existing `food_items`. Whatever data a pure function needs can simply be passed in by the shell. This flexibility comes from decoupling logic from stored state and connecting both only through data passed to the function, keeping dependencies simple and explicit.
 
-# Summary and Outlook
+And another great benefit of this design is that it improves *testability* significantly. As pointed out in the [intro post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), testing stateful code is often complex. To test a specific behavior, you first need to get your software into the right state. This means using the regular API, test-specific APIs, or mocks. This changes when the business logic no longer depends on hidden internal state, but only on explicit input. With these dependencies exposed, you can simply pass in whatever state you need, making testing straightforward.
+
+In conclusion, all of these benefits stem from the same shift: state dependencies become explicit instead of hidden.
+
+## Summary and Outlook
  The *functional core* defines pure functions and the data structures they operate on, while the *imperative shell* invokes these functions, passing in the current state as data and updating that state with the returned data.
 
  This separation keeps the core self‑contained and lets the shell handle persistence. Together, they create a transparent, flexible and testable system where pure logic and controlled mutation coexist cleanly.
