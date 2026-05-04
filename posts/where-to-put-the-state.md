@@ -79,12 +79,14 @@ And another great benefit of this design is that it improves *testability* signi
 
 In conclusion, all of these benefits stem from the same shift: state dependencies become explicit instead of hidden.
 
-## Summary and Outlook
- The *functional core* defines pure functions and the data structures they operate on, while the *imperative shell* invokes these functions, passing in the current state as data and updating that state with the returned data.
+## Outlook
+So far, we looked at state that has meaning at the domain level: snakes, food items, and the board. This kind of state belongs to the game model, so it makes sense that the game engine shell holds it explicitly and passes it into the core.
 
- This separation keeps the core self‑contained and lets the shell handle persistence. Together, they create a transparent, flexible and testable system where pure logic and controlled mutation coexist cleanly.
+But not all state should be understood at that level. Some state only exists to support a specific module—parser state, cache state, or other implementation details. Exposing all of that as domain-level state would keep everything explicit, but also clutter the shell with details it should not need to understand—blurring the domain model and making the system harder to reason about.
 
-The example here focused on *domain‑level state*. However, modules that maintain their own internal state introduce another level of abstraction. The post [[stateful-functional-modules]] will explore these *module‑internal states* and show how to handle both kinds of state cleanly.
+So the next question is how to reintroduce encapsulation without giving up the functional mechanics we established here.
+
+In the [next post](stateful-functional-modules), we will look at how to handle such *module-internal state* while keeping state evolution explicit and dependencies under control.
 
 ---
 This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
