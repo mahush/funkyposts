@@ -79,7 +79,7 @@ And another great benefit of this design is that it improves *testability* signi
 
 In conclusion, all of these benefits stem from the same shift: state dependencies become explicit instead of hidden.
 
-## Outlook
+## Where This Reaches Its Limits
 So far, we looked at state that has meaning at the domain level: snakes, food items, and the board. This kind of state belongs to the game model, so it makes sense that the game engine shell holds it explicitly and passes it into the core.
 
 But not all state should be understood at that level. Some state only exists to support a specific module—parser state, cache state, or other implementation details. Exposing all of that at the domain level would clutter the shell with details it should not need to understand—blurring the domain model and making the system harder to reason about.
