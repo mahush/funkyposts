@@ -5,7 +5,7 @@ The underlying idea is simple: keep state out of the business logic. But putting
 
 Without a clear model at the code level, state easily becomes an implicit dependency again—undermining the whole design.
 ## How State Flows Through Core and Shell
-The **functional core – imperative shell** pattern separates business logic from side effects. State handling is just another side effect, so the core's constraint here is: Although the business logic drives state changes, it is not allowed to persist and mutate state directly. 
+The *functional core – imperative shell* pattern separates business logic from side effects. State handling is just another side effect. For state, this means that although the business logic in the core drives changes, it does not persist or mutate state.
 
 This is resolved by letting state live in the shell, while the core receives it as input and returns updates. So, state evolution follows a clear pattern:
 - **persisted in the shell**: the shell holds the current state and passes it as data into a core function  
@@ -65,13 +65,10 @@ This example maps to the *functional core–imperative shell* design:
 - both connect at the function call, where the core’s result is applied to the state
 
 A key detail is how state is perceived differently. In the shell, `GameState` persists across calls and is mutated over time—this is what makes it state. In the core, however, there is no notion of state—only data passed in and returned. This is exactly what allows pure functions to drive state changes without mutating state themselves.
-
-So now that we have a clear picture about the mechanics at work, we can reflect on the advantages we get here.
-
 ## What This Design Gives You
-Looking at this design through the lens of dependencies reveals why these benefits arise:
+Looking at the following benefits through the lens of dependencies reveals why they arise:
 
-I really like this design for its *transparency*. All state appears at the top level, making it obvious that state exists. State changes are explicit and easy to follow, rather than hidden deep inside objects as is often the case in nested OOP designs. What makes this possible is that state dependencies are no longer hidden, but explicit.
+One key aspect is *transparency*. All state appears at the top level, making it obvious which state exists. State changes are explicit and easy to follow, rather than scattered deep inside objects as is often the case in nested OOP designs. What makes this possible is that state dependencies are no longer hidden, but explicit.
 
 There's also high *flexibility* in which state can be processed by which function. Here the `snakes` sub-state is mutated, but depends on the `board` and the currently existing `food_items`. Whatever data a pure function needs can simply be passed in by the shell. This flexibility comes from decoupling logic from stored state and connecting both only through data passed to the function, keeping dependencies simple and explicit.
 
@@ -82,7 +79,7 @@ In conclusion, all of these benefits stem from the same shift: state dependencie
 ## Outlook
 So far, we looked at state that has meaning at the domain level: snakes, food items, and the board. This kind of state belongs to the game model, so it makes sense that the game engine shell holds it explicitly and passes it into the core.
 
-But not all state should be understood at that level. Some state only exists to support a specific module—parser state, cache state, or other implementation details. Exposing all of that as domain-level state would keep everything explicit, but also clutter the shell with details it should not need to understand—blurring the domain model and making the system harder to reason about.
+But not all state should be understood at that level. Some state only exists to support a specific module—parser state, cache state, or other implementation details. Exposing all of that at the domain level would clutter the shell with details it should not need to understand—blurring the domain model and making the system harder to reason about.
 
 So the next question is how to reintroduce encapsulation without giving up the functional mechanics we established here.
 
