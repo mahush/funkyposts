@@ -1,3 +1,6 @@
+# Mastering State in Modern C++: Making It Explicit
+
+**Passing state as data in the functional core–imperative shell**
 
 In an earlier post, we saw that the _functional core – imperative shell_ pattern reduces complexity by centralizing state mutation in the shell, turning hidden state dependencies into explicit ones.
 
