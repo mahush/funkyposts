@@ -1,8 +1,8 @@
 # Mastering State in Modern C++: Making It Encapsulated
 
-**subtitle**
+**Explicit state, localized meaning**
 
-[Previously](mastering-state-in-modern-cpp-making-it-explicit), we made state explicit by assigning state evolution to the core and state persistence and mutation to the shell. This made state visible at the highest level, and changing it required passing it explicitly between shell and core. 
+[Previously](mastering-state-in-modern-cpp-making-it-explicit), we made state explicit by assigning state evolution to the core and state persistence and mutation to the shell. This made state visible at the highest level, and changing it required explicit passing between shell and core. 
 
 So far, we looked at state that had meaning at the domain level. The shell knew about snakes and food, and passed them around intentionally. But some state is not part of the domain story: a parser may need to remember where it is in an input stream, or a cache may need to remember previous lookups.
 
@@ -42,7 +42,8 @@ Let’s dive into some code from my [funkysnakes](https://github.com/mahush/funk
 
 Snakes are controlled via the arrow keys. But the game loop and key events are asynchronous. At the beginning of each game loop tick, each snake's movement direction is updated based on new key events received since the previous tick. This direction-update logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented by filtering key-press events.
 
-Unsurprisingly, this logic requires state: a queue of direction commands per player. Thet state looks like this:
+Unsurprisingly, this logic requires state: a queue of direction commands per player. That state looks like this:
+
 ```cpp
 namespace direction_command_filter {
 struct State {
@@ -53,6 +54,7 @@ struct State {
 ```
 
 The `direction_command_filter` module's interface provides two functions. `tryAdd`, which feeds direction commands into the filter, and `tryConsumeNext`, which retrieves the next direction that passed the filter. Both functions may evolve the module state:
+
 ```c++
 namespace direction_command_filter {
 
@@ -63,6 +65,7 @@ std::tuple<State, PerPlayerDirection> tryConsumeNext(State state);
 ```
 
 The `GameEngineActor` stores the regular domain state, `PerPlayerSnakes`, alongside the opaque module state, `direction_command_filter::State`:
+
 ```c++
 namespace shell {
 struct GameState {
@@ -102,6 +105,12 @@ State operation(State state, Input input);
   
 The module defines a state type and a set of pure operations over that state. Each operation receives the current state and returns the updated state.
 
+The namespace forms the module boundary. It groups the state type and the operations that give this state meaning. In that sense, `module` is self-contained: its behavior can be tested by constructing a `State`, calling its pure functions, and checking the returned state.
+
+The namespace also gives the operations a visible scope, much like a class name would for member functions. Client code calls `module::operation` and stores `module::State`, so the module boundary remains visible at the call site. This also means the state type can simply be called `State`: The required meaning comes from the namespace it belongs to.
+
+On the shell side, the pattern looks like this:
+
 ```c++
 namespace shell {
 
@@ -111,60 +120,31 @@ module_state = module::operation(module_state, input);
 }
 ```
 
-The shell persists the current state between calls and threads it through the module operations. It handles the state mechanically: storing it, passing it, and replacing it with the returned value. Only the module interprets the state’s internal structure.
+The shell persists the current state between calls and threads it through the module operations. It handles the state as an opaque value: storing it, passing it, and replacing it with the returned value. Only the module interprets the state’s internal structure.
 
-## What it means
-As announced, there a some aspects that deserve attention:
+## What It Means
 
-*Class Equivalent*: Generally, following this pattern, a stateful class can be converted into a stateful functional module. I feel this is especially helpful as it bridges between the object oriented and the functional world. So when transitioning into functional programming just start with taking your modules with you.
+A stateful functional module plays a role similar to a class: it groups state with the operations that give this state meaning. It forms a bridge between object-oriented and functional design: it preserves the class-like idea of grouping state with behavior, while keeping the functional mechanics of explicit state passing and pure transformations.
 
-*Self Contained Module*: The code in the `direction_command_filter` namespace make the module. By defining its functions and internal state it's self contained and as such can be unit tested in isolation.
+This is especially useful when moving from object-oriented design toward a more functional style. Existing modules do not have to disappear — they can often be reshaped around explicit state and pure operations.
 
-*Namespace Scope*: Note that the namespace gives scope to the functions exactly as a class name would do otherwise. In turn the module boundaries are clearly visible at client side calls. Also it's sufficient to call the module's state simply `State`.
+When looking at this pattern through the dependency lens, we can see that the shell depends on the module boundary, not on the module representation. It stores `module::State` and calls `module::operation`, but it should not read fields from `module::State` or base decisions on its internal structure. Once client code starts reading those details, the module’s internals leak into the surrounding system. The pattern is meant to prevent exactly that: dependencies on module internals.
 
-*Effective Encapsulation*: The module's state is only modified by the module's functions themselves. This is the essence of encapsulating state as provided by private class member variables in OOP context. Please note that the shell, which manages the persistence of this module-internal state, does not contradict this, as the shell only applies modification created by the module's functions. The shell does not modify state on its own behalf. From the shell's perspective, module state is a black box, although it stores and threads it through module functions but never peeks inside.
+This is where the difference between module state and domain state matters. `PerPlayerSnakes` is domain-level state. It has meaning across the game domain, so different parts of the system may reasonably understand what a snake is. `direction_command_filter::State`, on the other hand, is module-internal state. It supports the implementation of direction filtering, so only the `direction_command_filter` module should interpret it. The `GameEngineActor` may store that state and pass it to `tryAdd` or `tryConsumeNext`, but it should not inspect the queues inside it. The key point is that domain logic should not directly operate on module-internal state.
 
-*Testability*: Although the state is encapsulated it's not hidden. When calling the module's pure functions we can easily pass arbitrary state in and observe the resulting state. So testing works the same as described in [[mastering-state-in-modern-cpp-making-it-explicit]], which means stateful modules are perfectly testable. I love it.
+This is encapsulation by discipline, not by access control. The module owns the state conceptually, but it does not hide it structurally. C++ does not prevent other code from inspecting `direction_command_filter::State`. At first, that may look weaker than private class members. But it also makes the module easy to test. Tests do not need to drive an object through a long sequence of public method calls just to reach a specific internal situation. They can construct any relevant state directly, pass it to a pure module function, and inspect the returned state.
 
-*Module Internal State vs Domain Level State*: Notice that `tryAdd` receives two different kinds of state: `direction_command_filter::State` (module internal) and `PerPlayerSnakes` (domain level). Module internal state is data that only the `direction_command_filter` functions understand. In contrast the domain level state has meaning across the entire game domain, so many parts of the system understand what a snake is and operates on this state. The filter module needs to read it (to check current direction) but doesn't own it. This differentiation is quite important as the level defines which functions can interpret the state. The key point here is: domain logic functions must not directly operate on and thus not interpret module internal state. Therefore the internal state's name on domain level is just `direction_command_filter_state` which only indicates that it belongs to the `direction_command_filter` module but effectively hides its internals.
+That does not contradict encapsulation. It is part of the flexibility of the pattern. The same state can be treated differently in different contexts — opaque in production code, inspectable in module tests.
 
-Sharing these different perspectives on that design should help you to get a deeper understanding of the implementation details and their consequences such that you see clearly how to apply this pattern by yourself. 
-
+This is the core idea of the pattern: state evolution remains explicit, but interpretation is localized. From the shell’s perspective, module state is treated like a black box: the shell stores it and threads it through module functions, but never peeks inside. Only the module knows what that state means. The state is visible as a value, but encapsulated as a concept.
 
 ## Conclusions
 
-OOP naturally provides encapsulation of data in context of functions. Besides many weaknesses of object oriented design I feel this encapsulation generally is really a strength. So I am happy that this idea is compatible with functional programming. To be fair, only the class's data encapsulation is perfect in the sense that there is really no way to access a private member from outside the class (unless you make explicit exceptions via friend declarations). In the presented stateful functional module design the encapsulation is only based on the described discipline but in turn we gain great testability which I feel is a great trade off.
+Object-oriented C++ gives us strong data encapsulation through private members. Stateful functional modules do not provide the same access-control guarantee. Their encapsulation is based on a design rule: production code treats module state as opaque and only the module interprets it.
 
-Now it's your turn, give it a try an feel the magic of building a stateful functional module out of stateless functions!
+In return, state evolution stays explicit. The shell stores and threads the current state, while pure module functions compute the next one. This keeps module-internal state out of the domain model, prevents dependencies on implementation details, and still makes the module easy to test.
+
+So when a piece of logic needs its own state, it does not have to become an object with hidden mutation. It can become a stateful functional module: stateful in what it models, functional in how it evolves.
 
 ---
 This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
-
-
----
-## **Subtle but important nuance**
-
-The next post does **not** go back to OOP-style encapsulation.
-
-Instead, it introduces:
-
-**functional encapsulation**
-
-Meaning:
-
-- modules _own_ state conceptually
-- but don’t _hide_ it structurally
-
-That’s the key idea you’re setting up.
-
-
---
-
-
-Modularity is essential for managing complexity. In the [[actors-as-shell]] post, I discussed this idea in the context of dividing an application at a high level. The same principle applies at lower levels as well—for example, when isolating self-contained pieces of logic into modules. Since logic typically comes with state, encapsulating logic within a module naturally means encapsulating state there too.
-
-Object-oriented programming does exactly this all the time: each class has functions and data these functions are operating on. Data that is mutated becomes state. And so eventually a class encapsulates state. It's something that happens naturally.
-
-I discussed how to generally combine pure functions with state in [[mastering-state-in-modern-cpp-making-it-explicit]], but without any encapsulation. Instead state was publicly available and thus could be mutated by anyone. Sometimes we want this flexibility, but sometimes we only want state to be module local. So, sometimes we want OOP-like encapsulation in a functional programming context. How to get there?
-
-So, this post explores how pure functions operating on a shared state can form a coherent stateful module that effectively encapsulates state.
