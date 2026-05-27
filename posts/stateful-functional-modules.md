@@ -1,6 +1,6 @@
 # Mastering State in Modern C++: Making It Encapsulated
 
-**Explicit state, without polluting the domain model
+**Explicit state without polluting the domain model**
 
 [Previously](mastering-state-in-modern-cpp-making-it-explicit), we made state explicit by assigning state evolution to the core and state persistence and mutation to the shell. This made state visible at the highest level, and changing it required explicit passing between shell and core. 
 
@@ -13,14 +13,12 @@ In object-oriented C++, we would usually solve this by putting the state behind 
 How do we encapsulate internal implementation details without going back to objects whose behavior depends on hidden mutable state?
 
 This post explores one answer: how pure functions operating on shared module state can form a coherent stateful module — one that keeps state evolution explicit while localizing module-internal state.
+## Internal State Modules
+The general term *stateful functional module* describes a module that groups a state definition together with pure functions that define how that state evolves. In this post, we focus on one specific variant: the *internal state module*. Its state exists only because the module needs it to implement its internal logic, not because it belongs to the surrounding domain model.
 
-## Stateful Functional Modules
-The basic idea of a stateful functional module is to group the state definition together with the pure functions that define how that state evolves. In this post, we focus on one specific variant: the internal state module.
+As before, the shell still persists and updates state by replacing the current value with the value returned from a pure function. The difference is not in how the state evolves, but in how the state is treated: it is threaded through the system as module-local implementation state rather than shared domain state.
 
-As before, the shell still persists and mutates state by replacing the current value with the value returned from a pure function. But the key difference is that this state is no longer part of the shell’s domain model. The shell handles it as module-local rather than domain-level state.
-
-This creates the module’s encapsulation boundary. The shell passes the state to the module because the type identifies which module owns it, not because the shell understands what the state represents. Code outside the module may store and pass the state, but should not depend on its internal structure.
-
+Treating the state this way creates the module’s encapsulation boundary. The shell passes the state to the module because its type identifies the owning module, not because the shell understands what the state represents. Code outside the module may store and pass the state, but should not depend on its internal structure.
 
 ```mermaid
 flowchart TD
@@ -37,7 +35,6 @@ end
 Shell -->|"passes state to"| Ops
 Ops -->|"returns updated state"| Shell
 ```
-
 
 ## Looking at Code
 Let’s dive into some code from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project and see the idea in action.
@@ -92,9 +89,8 @@ auto [new_state, direction] =
 direction_command_filter::tryConsumeNext(state_.direction_command_filter_state);
 state_.direction_command_filter_state = new_state;
 ```
-
 ## Deriving the Module Pattern
-This example is concrete, but zooming out reveals a reusable pattern:
+This example is concrete, but zooming out reveals the underlying pattern:
 
 ```c++
 namespace module {
@@ -123,29 +119,24 @@ module_state = module::operation(module_state, input);
 ```
 
 The shell persists the current state between calls and threads it through the module operations. It treats the state as module-local implementation state: storing it, passing it, and replacing it with the returned value. This keeps the module’s internal state localized instead of turning it into regular domain state.
-
 ## What It Means
+Functional design allows broad composition over domain state: pure functions can combine and transform whatever domain data they need. *Internal state modules* introduce a boundary into that otherwise flexible model. Their state remains explicit and still evolves through pure functions, but it stays localized to the module that owns the corresponding implementation logic instead of becoming shared domain data.
 
-Functional design allows broad composition over domain state: pure functions can combine and transform whatever domain data they need. But not all state belongs to the domain-level. Some state exists only to support a module’s internal logic. A stateful functional module provides a boundary for that kind of state: it remains explicit and is still passed through pure functions, but it is localized to the module that owns it instead of leaking into the domain model.
+When looking at this pattern through the dependency lens, we can see that outside code should depend on the module boundary, not on the module implementation. The shell may store `module::State` and call `module::operation`, and other operations may receive or pass that state as needed. But none of that code should read fields from `module::State` or base decisions on its internal structure. Once surrounding code starts depending on those details, the module’s internals leak into the system. The pattern is meant to prevent exactly that: dependencies on module internals.
 
-When looking at this pattern through the dependency lens, we can see that the shell depends on the module boundary, not on the module implementation. It stores `module::State` and calls `module::operation`, but it should not read fields from `module::State` or base decisions on its internal structure. Once outside code starts reading those details, the module’s internals leak into the surrounding system. The pattern is meant to prevent exactly that: dependencies on module internals.
+In the snake example, `direction_command_filter::State` is module-local state, while `PerPlayerSnakes` is domain state. The filter module owns its internal queue state, but it can still consume domain state as input when needed. This is an important distinction: an *internal state module* is not isolated from the domain. It may use domain state to perform its work, but it does not expose its own implementation state as domain data. This keeps the useful flexibility of sharing domain state across pure functions, while keeping the filter’s internal state localized to the module.
 
-In the snake example, `direction_command_filter::State` is module-local state, while `PerPlayerSnakes` is domain state. The filter module owns its internal queue state, but it can still consume domain state as input when needed. This keeps the useful flexibility of sharing domain state across pure functions, while preventing the filter’s internal state from becoming shared domain data.
+For this kind of module-internal state, conceptual encapsulation is often sufficient. The state is clearly identified as belonging to a specific module, and it has no independent meaning in the domain model. That makes accidental external use less likely than with domain state, where many parts of the system may naturally want to inspect or modify the data. Stronger language-enforced encapsulation is also possible, but it becomes more relevant when domain state itself needs protection — a case we will look at later.
 
-For this kind of module-internal state, conceptual encapsulation is often sufficient. The state is clearly identified as belonging to a specific module, and it has no independent meaning in the domain model. That makes accidental external use less likely than with domain state, where many parts of the system may naturally want to inspect or modify the data.
+The conceptual encapsulation used here also allows more flexible testing. Tests can still treat the module as a public API and verify behavior through its operations. But when useful, they can also construct relevant states directly, pass them through pure functions, and inspect the returned results without driving an object through long sequences of mutating method calls.
 
-It also allows more flexible testing. Tests can still treat the module as a public API and verify behavior through its operations. But when useful, they can also construct relevant states directly, pass them through pure functions, and inspect the returned results without driving an object through long sequences of mutating method calls.
-
-The key idea is this: state evolution remains explicit, but module-internal state stays localized. From the shell’s perspective, module state is treated like a black box: the shell stores it and threads it through module functions, but never peeks inside. As a result, this state does not become part of the surrounding domain model, and outside code does not depend on its internal structure. The state is visible as a value, but encapsulated as a module-owned concept.
-
+The key idea is this: state evolution remains explicit, but module-internal state stays localized. From the shell’s perspective, module state is treated like a black box: the shell stores it and threads it through module functions, but never peeks inside. As a result, this state does not become part of the surrounding domain model, and outside code does not depend on how the state is represented or what it means internally. The state is visible as a value, but encapsulated as a module-owned concept.
 ## **State is not mastered yet**
-
-This post covered one side of the stateful functional module coin: internal state modules. Their purpose is to keep module-internal state explicit without turning it into part of the domain model.
+This post covered one side of the *stateful functional module* coin: *internal state modules*. Their purpose is to keep module-internal state explicit without turning it into part of the domain model.
 
 But there is another side to state ownership. Sometimes the state does belong to the domain, but still should not be modified freely because it has invariants or valid transitions.
 
-That is the next step: using the same explicit-state style to protect domain state.
-
+That is the next step: modeling domain state that must protect its own invariants.
 
 ---
 This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
