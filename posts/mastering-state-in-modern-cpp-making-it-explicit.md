@@ -2,7 +2,7 @@
 
 **Passing state as data in the functional core–imperative shell**
 
-In an earlier post, we saw that the _functional core – imperative shell_ pattern reduces complexity by centralizing state mutation in the shell, turning hidden state dependencies into explicit ones.
+In an earlier post, we saw that the *functional core – imperative shell* pattern reduces complexity by centralizing state mutation in the shell, turning hidden state dependencies into explicit ones.
 
 The underlying idea is simple: keep state out of the business logic. But putting this into practice is not: how can the business logic still evolve state that lives elsewhere—and why does this make dependencies explicit?
 
