@@ -49,10 +49,12 @@ The funkyposts blog is meant to build a bridge between traditional C++ and funct
 ## Dive deeper
 The next step is to leverage these insights in practice—improving existing designs without rewriting everything. The subsequent posts in this series show how.
 
-- **[Handling Side Effects in Modern C++: Interfacing Pure Functions with Our Imperative World](handling-side-effects-in-modern-cpp-designing-systems-around-pure-functions.md)** — Using the functional core–imperative shell pattern to mitigate dependencies
+- [Handling Side Effects in Modern C++: Interfacing Pure Functions with Our Imperative World](handling-side-effects-in-modern-cpp-designing-systems-around-pure-functions.md) — Using the functional core–imperative shell pattern to mitigate dependencies
 - [When One Shell Isn’t Enough: Scaling the Functional Core–Imperative Shell Pattern with Actors in C++](when-one-shell-isnt-enough-scaling-the-functional-core-imperative-shell-pattern-with-actors-in-cpp) — How to structure growing C++ systems into actor-driven core–shell pairs that isolate dependencies
+- [Mastering State in Modern C++: Making It Explicit](mastering-state-in-modern-cpp-making-it-explicit.md) — Making state flow explicit in the functional core–imperative shell pattern
+- [Mastering State in Modern C++: Making It Encapsulated](mastering-state-in-modern-cpp-making-it-encapsulated.md) — Localizing module-internal state without hidden mutation or domain model pollution
 - More posts in this series coming soon
 
 ---
 Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
-Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v06)
+Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v07)
