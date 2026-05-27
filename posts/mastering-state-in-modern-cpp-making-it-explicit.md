@@ -100,4 +100,4 @@ So the next question is how to reintroduce encapsulation without giving up the f
 In the [next post](mastering-state-in-modern-cpp-making-it-encapsulated.md), we will look at how to handle *module-internal state* while keeping state evolution explicit and dependencies under control. After that, we will apply the same idea to domain state whose valid evolution needs protection.
 
 ---
-This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
+This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
