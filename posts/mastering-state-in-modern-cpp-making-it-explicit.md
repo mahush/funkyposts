@@ -97,7 +97,7 @@ Second, some domain state should not be modified freely. If a domain concept has
 
 So the next question is how to reintroduce encapsulation without giving up the functional mechanics we established here.
 
-In the [next post](stateful-functional-modules), we will look at how to handle *module-internal state* while keeping state evolution explicit and dependencies under control. After that, we will apply the same idea to domain state whose valid evolution needs protection.
+In the [next post](mastering-state-in-modern-cpp-making-it-encapsulated.md), we will look at how to handle *module-internal state* while keeping state evolution explicit and dependencies under control. After that, we will apply the same idea to domain state whose valid evolution needs protection.
 
 ---
 This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
