@@ -159,8 +159,8 @@ On top of that, it enables clean bridging between traditional object-oriented de
 ## Outlook
 This and the [previous post](handling-side-effects-in-modern-cpp-designing-systems-around-pure-functions.md) touched on state handling, but only at a high level as part of the shell. At the same time, the core needs to read and evolve that state.
 
-Designing clean interfaces for core functions requires a deeper understanding of how state is represented and passed. In the next post, I will take a closer look at state management and how to handle it effectively.
+Designing clean interfaces for core functions requires a deeper understanding of how state is represented and passed. In the [next post](mastering-state-in-modern-cpp-making-it-explicit), I will take a closer look at state management and how to handle it effectively.
 
 ---
 Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
-Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
+Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v03)
