@@ -130,11 +130,11 @@ The conceptual encapsulation used here also allows more flexible testing. Tests 
 
 The key idea is this: state evolution remains explicit, but state interpretation stays localized. From the shell’s perspective, module state is treated like a black box: the shell stores it and threads it through module functions, but never peeks inside. As a result, the state remains local to the module that interprets it, and outside code does not depend on how the state is represented or what it means internally. The state is visible as a value, but encapsulated as a module-owned concept.
 ## **State is not mastered yet**
-This post covered one side of the *stateful functional module* coin: *Enapsulating State Modules*. Their purpose is to keep module-internal state explicit without turning it into part of the domain model.
+This post showed how state can remain explicit without becoming a shared concept throughout the system.
 
-But there is another side to state ownership. Sometimes the state does belong to the domain, but still should not be modified freely because it has invariants or valid transitions.
+But explicit state and encapsulated meaning are not the full story yet. Sometimes state should be adjusted carefully.
 
-That is the next step: modeling domain state that must protect its own invariants.
+That is the next step: keeping state evolution explicit while introducing protection around how that state may evolve.
 
 ---
 This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
