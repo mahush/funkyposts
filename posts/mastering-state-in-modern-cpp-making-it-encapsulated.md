@@ -14,7 +14,7 @@ How do we encapsulate internal implementation details without going back to obje
 
 This post shows how pure functions operating on shared module state can form a coherent stateful module — one that keeps state evolution explicit while encapsulating module state.
 ## Encapsulating State Modules
-An _Encapsulating State Module_ groups a state definition together with pure functions that define how that state evolves. Its state exists solely for the module’s own purposes. No code other than the module itself has a reason to interpret it.
+An _Encapsulating State Module_ groups a state definition together with pure functions that interpret and use that state. Its state exists solely for the module’s own purposes. No code other than the module itself has a reason to understand what that state means.
 
 As before, the shell still persists and updates state by replacing the current value with the value returned from a pure function. The difference is not in how the state evolves, but in how it is treated. The shell still stores and threads the state through the system, but only the module itself interprets what that state means.
 
