@@ -34,7 +34,7 @@ classDef state stroke-dasharray: 5 5;
 class StateDef state;
 ```
 
-## Looking at Code
+## An Example: An Encapsulated Filter
 Let’s dive into some code from my [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.0) project and see the idea in action.
 
 Snakes are controlled via the arrow keys. But the game loop and key events are asynchronous. At the beginning of each game loop tick, each snake's movement direction is updated based on new key events received since the previous tick. This direction-update logic is implemented in the `direction_command_filter` module. As the name suggests the logic is implemented by filtering key-press events.
@@ -117,7 +117,7 @@ module_state = module::operation(module_state, input);
 ```
 
 The shell persists the current state between calls and threads it through the module operations. It stores the state, passes it to the module, and replaces it with the returned value. The state remains visible, but it is treated differently: surrounding code only carries it through the system but does not interpret it.
-## What It Means
+## What Encapsulation Changes
 Functional design allows broad composition over shared state: pure functions can combine and transform whatever data they need. *Encapsulating State Modules* introduce a boundary into that otherwise flexible model. Their state remains explicit and still evolves through pure functions, but it stays localized to the module that owns the corresponding implementation logic instead of becoming generally shared data.
 
 When looking at this pattern through the dependency lens, we can see that outside code should depend on the module boundary, not on the module implementation. The shell may store `module::State` and call `module::operation`, and other operations may receive or pass that state as needed. But none of that code should read fields from `module::State` or base decisions on its internal structure. Once surrounding code starts depending on those details, the module’s internals leak into the system. The pattern is meant to prevent exactly that: dependencies on module internals.

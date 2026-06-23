@@ -113,8 +113,7 @@ if (snakeBitesItself(state_.snake)) {
 }
 ```
 
-## Extracting the Pattern
-
+## Deriving the Module Pattern
 Generalizing the snake example shows the underlying pattern.
 
 ```cpp
@@ -147,7 +146,7 @@ The protection is enforced through language-level access control using private d
 
 The tradeoff is that tests can no longer freely construct or modify arbitrary internal states. Instead, they interact with the module through its public state-evolving operations and state queries. Tests apply state changes and verify the resulting behavior through the module’s observable outputs.
 
-## What it means
+## What Protection Changes
 A _Protecting State Module_ separates code that may evolve state from code that may not. 
 
 By forcing all state-evolving operations into the module, it localizes state evolution. This means that the rules for how state may change are implemented in one place. To understand how state can evolve, you no longer have to track down every function that relates to it. The rules are no longer scattered across the codebase. 
