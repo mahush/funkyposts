@@ -134,7 +134,7 @@ This post showed how state can remain explicit without becoming a shared concept
 
 But explicit state and encapsulated meaning are not the full story yet. Sometimes state should be adjusted carefully.
 
-That is the next step: keeping state evolution explicit while introducing protection around how that state may evolve.
+That is the [next step](mastering-state-in-modern-cpp-making-it-protected): keeping state evolution explicit while introducing protection around how that state may evolve.
 
 ---
 This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v02)
