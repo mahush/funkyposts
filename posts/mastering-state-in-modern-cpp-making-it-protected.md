@@ -182,3 +182,6 @@ This is possible because both patterns build on the same underlying mechanism: g
 The choice is therefore selective. Such modules become useful only when either the meaning of state or the valid evolution of state needs an owner. Otherwise, state can simply remain explicit.
 
 Ultimately, making state explicit is the foundation. From there, the design challenge becomes deciding whether localizing state meaning or state evolution is worth the additional boundary.
+
+---
+This post is created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v01)
