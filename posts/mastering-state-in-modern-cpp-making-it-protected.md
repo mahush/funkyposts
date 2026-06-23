@@ -11,14 +11,15 @@ A snake body is a simple domain-level example. It must remain a connected chain.
 The usual object-oriented solution would be to evolve that state through class methods. But we still want state evolution to remain explicit.
 
 How can we protect state evolution without hiding it?
-## **Protecting State Modules**
+
+## Protecting State Modules
 As in a [previous post](mastering-state-in-modern-cpp-making-it-encapsulated), the basic idea is to group state with pure functions over that state into a *Stateful Functional Module*. But this time the focus is different. Previously, the module localized the *meaning* of state. Now it localizes the *evolution* of state.
 
 I call this a Protecting State Module. Its purpose is to protect state evolution by preserving validity over time. That includes what must always be true about the state, and how the state may change. So it becomes useful when a piece of state has invariants or restricted transitions.
 
-As a Protecting State Module owns only state evolution and not state meaning, other functions may depend on the state and build their logic on top of it. The restriction is not about reading, but only about directly modifying it.
+Because a Protecting State Module owns only state evolution and not state meaning, other functions may depend on the state and build their logic on top of it. The restriction is not about reading, but only about directly modifying it.
 
-Here pattern in a visual nutshell:
+Here is the pattern in a visual nutshell:
 ```mermaid
 flowchart TD
 
@@ -40,7 +41,7 @@ Let’s return to the _funkysnakes_ project and look at a snake itself.
 
 The game stores snakes as part of its domain model. This makes the concept available throughout the game. To ensure that snake evolution remains valid, snakes are implemented as a *Protecting State Module*, here called `snake_model`.
 
- The module defines the `Snake` type together with the query functions `head`, `tail` and `alive` to enable read access to the current snake state. This allows any part of the game logic to depend on the concept of a snake in a read only way. 
+ The module defines the `Snake` type together with the query functions `head`, `tail` and `alive` to enable read access to the current snake state. This allows any part of the game logic to depend on the concept of a snake in a read-only way. 
 
 ```cpp
 namespace snake::snake_model {
@@ -67,7 +68,7 @@ bool alive(const Snake& s);
 }
 ```
 
-In addition the module provides the state evolving functions `initial`, `move` and `kill`. So, whenever a snake needs to be modified, these functions are utilized. 
+In addition, the module provides the state-evolving functions `initial`, `move` and `kill`. So, whenever a snake needs to be modified, these functions are utilized. 
 
 ```cpp
 namespace snake::snake_model {
@@ -138,7 +139,7 @@ State evolve(State state, Input input);
 
 The module defines a state type together with two different types of functions:
 
-*Query Functions* simply provide access to state details. As *Protecting State Modules* share the meaning of its state with the outer world, query functions enable any other function to build on top of its state in a read-only way. This keeps up the flexibility we initially gained with making the state explicit.
+*Query Functions* simply provide access to state details. As *Protecting State Module* share the meaning of its state with the outer world, query functions enable any other function to build on top of its state in a read-only way. This keeps up the flexibility we initially gained with making the state explicit.
 
 *Evolving Functions* allow modification of the state, but only as encoded by these functions. Anyone that holds the state may invoke them. So the flexibility of who may evolve state remains, but the how is encapsulated in the module. This way state evolution is protected. 
 
