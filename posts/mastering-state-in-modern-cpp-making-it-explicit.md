@@ -91,7 +91,6 @@ One key detail is how state is perceived differently. In the shell, `GameState` 
 The example also reveals a subtle boundary: selecting sub-states is not interpreting them; it is routing. The shell may pick `snakes`, `board`, and `food_items` from `GameState` and pass them to `moveSnakes` or `replenishFood`, but the interpretation of those values remains in the core.
 
 ## What This Design Gives You
-
 Looking at the following benefits through the lens of dependencies reveals why they arise:
 
 One key aspect is *transparency*. All state appears at the top level, making it obvious which state exists. State changes are explicit and easy to follow, rather than scattered deep inside objects as is often the case in nested OOP designs. What makes this possible is that state dependencies are no longer hidden, but explicit.
@@ -103,7 +102,6 @@ And another great benefit of this design is that it improves *testability* signi
 In conclusion, all of these benefits stem from the same shift: state dependencies become explicit instead of hidden.
 
 ## Where This Reaches Its Limits
-
 So far, we looked at state that can be passed freely through pure functions. Making state explicit gives us transparency, flexibility, and testability. But explicit state alone leaves important ownership questions open.
 
 Some state is an implementation detail—parser state, cache state, or other internals. Making such state explicit should not mean exposing its meaning throughout the surrounding system.
