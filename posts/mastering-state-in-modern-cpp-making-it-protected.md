@@ -2,23 +2,24 @@
 
 **Explicit state with protected evolution**
 
-[Earlier](mastering-state-in-modern-cpp-making-it-explicit), we made state explicit by passing it through pure functions. This naturally allows state and functions to be composed flexibly. Any function can consume or evolve any combination of state, and any piece of state can participate in multiple functions.
+[Earlier](mastering-state-in-modern-cpp-making-it-explicit), we made state explicit by passing it through pure functions. This naturally allows state and functions to be composed flexibly. Any function can consume or evolve any combination of state, and any state can participate in multiple functions.
 
-But some state must be adjusted carefully. As systems grow, the logic that evolves a piece of state often becomes scattered across the codebase. Different pieces of code start modifying the same state, and those modifications become implicitly dependent on one another. Understanding or changing the evolution of that state then requires reasoning across many locations at once.
+But some state must be adjusted carefully. As systems grow, the logic that evolves a state often becomes scattered across the codebase. Different pieces of code start modifying the same state, and those modifications become implicitly dependent on one another. Understanding or changing the evolution of that state then requires reasoning across many locations at once.
 
-A snake body is a simple domain-level example. It must remain a connected chain. Movement must preserve that structure, and dead snakes must not move. If any piece of code can arbitrarily modify body segments, those rules become hard to keep consistent.
+A snake body is a simple domain-level example. It must remain a connected chain. Movement must preserve that structure, and dead snakes must not move. If any code can arbitrarily modify body segments, those rules become hard to keep consistent.
 
 The usual object-oriented solution would be to evolve that state through class methods. But we still want state evolution to remain explicit.
 
 How can we protect state evolution without hiding it?
-## **Protecting State Modules**
-As in a [previous post](mastering-state-in-modern-cpp-making-it-encapsulated), the basic idea is to group state with pure functions over that state into a *Stateful Functional Module*. But this time the focus is different. Previously, the module localized the *meaning* of state. Now it localizes the *evolution* of state.
 
-I call this a Protecting State Module. Its purpose is to protect state evolution by preserving validity over time. That includes what must always be true about the state, and how the state may change. So it becomes useful when a piece of state has invariants or restricted transitions.
+## Protecting State Modules
+As in a [previous post](mastering-state-in-modern-cpp-making-it-encapsulated), we group state together with the pure functions that operate on it. But this time the focus is different. Previously, the module localized the *meaning* of state. Now it localizes the *evolution* of state.
 
-As a Protecting State Module owns only state evolution and not state meaning, other functions may depend on the state and build their logic on top of it. The restriction is not about reading, but only about directly modifying it.
+I call this a Protecting State Module. Its purpose is to protect state evolution by preserving validity over time. That includes what must always be true about the state, and how the state may change. So it becomes useful when state has invariants or restricted transitions.
 
-Here pattern in a visual nutshell:
+Because a Protecting State Module owns only state evolution and not state meaning, other functions may depend on the state and build their logic on top of it. The restriction is not about reading, but only about directly modifying it.
+
+Here is the pattern in a visual nutshell:
 ```mermaid
 flowchart TD
 
@@ -40,7 +41,7 @@ Let’s return to the _funkysnakes_ project and look at a snake itself.
 
 The game stores snakes as part of its domain model. This makes the concept available throughout the game. To ensure that snake evolution remains valid, snakes are implemented as a *Protecting State Module*, here called `snake_model`.
 
- The module defines the `Snake` type together with the query functions `head`, `tail` and `alive` to enable read access to the current snake state. This allows any part of the game logic to depend on the concept of a snake in a read only way. 
+ The module defines the `Snake` type together with the query functions `head`, `tail` and `alive` to enable read access to the current snake state. This allows any part of the game logic to depend on the concept of a snake in a read-only way. 
 
 ```cpp
 namespace snake::snake_model {
@@ -67,7 +68,7 @@ bool alive(const Snake& s);
 }
 ```
 
-In addition the module provides the state evolving functions `initial`, `move` and `kill`. So, whenever a snake needs to be modified, these functions are utilized. 
+In addition, the module provides the state-evolving functions `initial`, `move` and `kill`. So, whenever a snake needs to be modified, these functions are utilized. 
 
 ```cpp
 namespace snake::snake_model {
@@ -138,7 +139,7 @@ State evolve(State state, Input input);
 
 The module defines a state type together with two different types of functions:
 
-*Query Functions* simply provide access to state details. As *Protecting State Modules* share the meaning of its state with the outer world, query functions enable any other function to build on top of its state in a read-only way. This keeps up the flexibility we initially gained with making the state explicit.
+*Query Functions* simply provide access to state details. As *Protecting State Module* share the meaning of its state with the outer world, query functions enable any other function to build on top of its state in a read-only way. This keeps up the flexibility we initially gained with making the state explicit.
 
 *Evolving Functions* allow modification of the state, but only as encoded by these functions. Anyone that holds the state may invoke them. So the flexibility of who may evolve state remains, but the how is encapsulated in the module. This way state evolution is protected. 
 
