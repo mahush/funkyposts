@@ -37,7 +37,7 @@ class StateDef state;
 ```
 
 ## An Example: Protecting Snakes
-Let’s return to the _funkysnakes_ project and look at a snake itself.
+Let’s return to the [funkysnakes](https://github.com/mahush/funkysnakes/tree/v0.1.1) project and look at a snake itself.
 
 The game stores snakes as part of its domain model. This makes the concept available throughout the game. To ensure that snake evolution remains valid, snakes are implemented as a *Protecting State Module*, here called `snake_model`.
 
