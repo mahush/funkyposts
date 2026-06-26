@@ -36,7 +36,7 @@ These techniques work because they change how we design systems—and with that,
 - Function interfaces are typically narrower than class interfaces, which keeps dependencies simpler.
 - There is no inheritance hierarchy, removing an entire class of dependencies 
 
-In conclusion, when you compose your business logic out of pure functions, dependencies become explicit, fewer, and simpler. This directly mitigates complexity.
+In conclusion, when you compose your logic out of pure functions, dependencies become explicit, fewer, and simpler. This directly mitigates complexity.
 The design becomes clearer, and as a result, reasoning, testing, and maintenance improve.
 
 Just to be explicit, I am not saying functional programming is going to solve all problems, nor that it’s applicable in C++ without limits. I am saying there are aspects that are highly valuable when designing C++ systems. So, I advocate for complementing OOP with FP where appropriate.
@@ -57,4 +57,4 @@ The next step is to leverage these insights in practice—improving existing des
 
 ---
 Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
-Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v07)
+Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v08)
