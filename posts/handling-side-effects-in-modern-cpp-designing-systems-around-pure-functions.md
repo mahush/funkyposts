@@ -2,13 +2,13 @@
 
 *Using the functional core–imperative shell pattern to mitigate dependencies*
 
-In the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), we saw why structuring business logic without side effects—using pure functions—effectively mitigates dependencies and makes code easier to reason about and test.
+In the previous [post](bridging-object-oriented-and-functional-thinking-in-modern-cpp), we saw why structuring logic without side effects—using pure functions—effectively mitigates dependencies and makes code easier to reason about and test.
 
-But applying this idea in a real system isn't straightforward: Although you want your functions without side effects, the application you are building still must perform IO and maintain state to be useful.
+But applying this idea in a real system isn't straightforward: Although you want your functions to be free of side effects, the application you are building still must perform IO and maintain state to be useful.
 
-This leads to a practical design question: how do we structure systems so that side effects are decoupled from the business logic?
+This leads to a practical design question: how do we structure systems so that logic is decoupled from side effects?
 ## Decoupling Logic and Side Effects
-The key idea is clear separation at the system level. So, instead of mixing business logic and side effects in the same place, one part of the system focuses on logic, while another is dedicated to side effect handling.
+The key idea is clear separation at the system level. So, instead of mixing logic and side effects in the same place, one part of the system focuses on logic, while another is dedicated to side effect handling.
 
 In this setup the logic still determines which effects should happen, but without performing them directly. Instead, it describes what needs to happen, and the surrounding code interprets and performs the effects.
 
@@ -26,12 +26,11 @@ flowchart TD
     end
 ```
 
-The **functional core**, is where the business logic is encoded in pure functions. You can wire these functions freely. This lets you build various layers of abstraction and organize the business logic cleanly.
+The **functional core** is where logic is encoded in pure functions. This is not limited to business logic, but applies to any logic that can be expressed as pure functions. You can wire these functions freely. This lets you build various layers of abstraction and organize the logic cleanly.
 
-The remaining part forms the **imperative shell** that calls the core and performs effects. For a C++ developer this is familiar terrain: using the standard library to write to stderr, mutating private members, using protocol stacks to communicate with other systems, or managing timers. In addition, the shell is responsible for managing the application’s execution environment, such as setting up concurrency. There is only one constraint: don’t implement business logic here.
+The remaining part forms the **imperative shell** that calls the core and performs effects. For a C++ developer this is familiar terrain: using the standard library to write to stderr, mutating private members, using protocol stacks to communicate with other systems, or managing timers. In addition, the shell is responsible for managing the application’s execution environment, such as setting up concurrency. There is only one constraint: don’t implement logic here.
 
-One important design aspect is the direction of dependencies: the shell depends on the core, but the core is independent of the shell. This enforces the clean separation as it prevents effects like state, IO, or other external concerns from leaking into the business logic and keeps the core self-contained.
-
+One important design aspect is the direction of dependencies: the shell depends on the core, but the core is independent of the shell. This enforces the clean separation as it prevents effects like state, IO, or other external concerns from leaking into the core and keeps it self-contained.
 ## Applying the Pattern in C++
 Let's look at a simplified C++ example from a snake game to see core and shell clearly. Consider direction change validation — the rule that prevents instantly reversing direction. 
 
@@ -64,7 +63,7 @@ constexpr EvaluationResult evaluateDirectionChange(Direction current, Direction 
     return {true, SoundEffect::None};
 }
 ```
-These functions and their input and output types form the *functional core*. Here the business logic about the game's behavior on direction changes is encoded.
+These functions and their input and output types form the *functional core*. Here the logic describing the game's behavior on direction changes is encoded.
 
 ```cpp
 // imperative shell
@@ -89,26 +88,26 @@ int main() {
 The `main` function is the *imperative shell*—it calls the core, interprets the result, and performs side effects like reading user input, playing sound, or mutating the game state.
 
 ## Recap - What has changed
-The separation into core and shell shifts how business logic is structured and how it interacts with the rest of the system. But let's state it more concretely:
-- the business logic no longer performs effects directly but only decides what should happen
-- side effect handling (IO, state mutation) is no longer distributed across the business logic but centralized outside of it
-- state is no more hidden and implicitly mutated but visible at the top level and explicitly passed into the core and returned
+The separation into core and shell shifts how logic is structured and how it interacts with the rest of the system. But let's state it more concretely:
+- the logic no longer performs effects directly but only decides what should happen
+- side effect handling (IO, state mutation) is no longer distributed across the logic but centralized outside of it
+- state is no longer hidden and implicitly mutated but visible at the top level and explicitly passed into the core and returned
 
-Together, these changes introduce an explicit interface between the pure business logic and the effectful parts of the system at the cost of introducing additional types to describe those effects.
+Together, these changes introduce an explicit interface between the pure logic and the effectful parts of the system at the cost of introducing additional types to describe those effects.
 
 Looking at it through the lens of dependencies from the previous post, the situation improves as follows:
-- the business logic has no dependencies on external systems
+- the logic has no dependencies on external systems
 - fewer places in the system depend on IO or state mutation, and these dependencies are localized instead of spread across the system
-- state dependencies are explicit: the business logic depends only on input data passed in and returned, not on internal mutable state
+- state dependencies are explicit: the logic depends only on input data passed in and returned, not on internal mutable state
 
-As a consequence, reasoning about the business logic becomes significantly easier, and testing follows naturally: you call the function with input values and verify the result—without heavy mocking, dependency injection, or complex setup. This is exactly the improvement we were aiming for in the previous post.
+As a consequence, reasoning about the logic becomes significantly easier, and testing follows naturally: you call the function with input values and verify the result—without heavy mocking, dependency injection, or complex setup. This is exactly the improvement we were aiming for in the previous post.
 
 In addition, effect handling becomes easier to understand and control, as it is no longer spread across the logic but centralized in one place.
 
-So, the main achievement of *functional core–imperative shell* is removing hidden dependencies from the business logic and localizing the remaining ones.
+So, the main achievement of *functional core–imperative shell* is removing hidden dependencies from the logic and localizing the remaining ones.
 
 ## Starting Small Works Well
-Although this is a fundamental shift in how to deal with side effects, it doesn’t require an all-or-nothing redesign. The pattern works for a subset of your business logic, so you can apply it locally, one part of the system at a time: start by moving effectful behavior out of a single piece of business logic while leaving the surrounding structure in place. From there, you can incrementally restructure more of the system step by step.
+Although this is a fundamental shift in how to deal with side effects, it doesn’t require an all-or-nothing redesign. The pattern works for a subset of your logic, so you can apply it locally, one part of the system at a time: start by moving effectful behavior out of a single piece of logic while leaving the surrounding structure in place. From there, you can incrementally restructure more of the system step by step.
 
 ## Where This Leads Next
 All the side effect handling is now centralized in the shell. As the application grows this accumulates complexity there. Even in a simple snake game, this escalates quickly: handling user input, playing sound, managing the game state, and performing screen IO.
@@ -117,4 +116,4 @@ In my [next post](when-one-shell-isnt-enough-scaling-the-functional-core-imperat
 
 ---
 Part of the *funkyposts* blog — bridging object-oriented and functional thinking in C++.
-Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v04)
+Created with AI assistance for brainstorming and improving formulation. Original and canonical source: https://github.com/mahush/funkyposts (v05)
