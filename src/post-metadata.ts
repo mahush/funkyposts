@@ -17,4 +17,7 @@ export const postMetadata: Record<string, { description: string }> = {
   "mastering-state-in-modern-cpp-making-it-protected": {
     description: "How to protect state evolution in modern C++ using stateful functional modules—keeping state explicit while centralizing invariants, valid transitions, and the logic that defines how state may change.",
   },
+  "effects-in-modern-cpp-making-them-explicit": {
+    description: "How to represent side effects as explicit data in modern C++ using the functional core–imperative shell pattern. Make dependencies visible, improve testability, and build code that is easier to understand and maintain.",
+  },
 };
