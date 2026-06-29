@@ -1,0 +1,27 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../layouts/Base.astro";
+
+const posts = await getCollection("posts");
+
+const postsWithTitles = await Promise.all(
+  posts.map(async (post) => {
+    const { remarkPluginFrontmatter } = await render(post);
+    const firstHeading = post.body?.match(/^#\s+(.+)$/m)?.[1] ?? post.id;
+    return { ...post, title: firstHeading };
+  })
+);
+---
+
+<Base title="FunkyPosts">
+  <h1>FunkyPosts</h1>
+  <p>Bridging object-oriented and functional thinking in C++.</p>
+  <h2>Posts</h2>
+  <ul>
+    {postsWithTitles.map((post) => (
+      <li>
+        <a href={`/posts/${post.id}/`}>{post.title}</a>
+      </li>
+    ))}
+  </ul>
+</Base>
