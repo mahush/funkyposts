@@ -1,27 +1,60 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 
 const posts = await getCollection("posts");
 
-const postsWithTitles = await Promise.all(
-  posts.map(async (post) => {
-    const { remarkPluginFrontmatter } = await render(post);
-    const firstHeading = post.body?.match(/^#\s+(.+)$/m)?.[1] ?? post.id;
-    return { ...post, title: firstHeading };
-  })
-);
+const order = [
+  "bridging-object-oriented-and-functional-thinking-in-modern-cpp",
+  "handling-side-effects-in-modern-cpp-designing-systems-around-pure-functions",
+  "when-one-shell-isnt-enough-scaling-the-functional-core-imperative-shell-pattern-with-actors-in-cpp",
+  "mastering-state-in-modern-cpp-making-it-explicit",
+  "mastering-state-in-modern-cpp-making-it-encapsulated",
+  "mastering-state-in-modern-cpp-making-it-protected",
+];
+
+const sorted = order
+  .map((id) => posts.find((p) => p.id === id))
+  .filter(Boolean)
+  .map((post) => ({
+    id: post!.id,
+    title: post!.body?.match(/^#\s+(.+)$/m)?.[1] ?? post!.id,
+  }));
 ---
 
 <Base title="FunkyPosts">
-  <h1>FunkyPosts</h1>
-  <p>Bridging object-oriented and functional thinking in C++.</p>
-  <h2>Posts</h2>
-  <ul>
-    {postsWithTitles.map((post) => (
-      <li>
-        <a href={`/posts/${post.id}/`}>{post.title}</a>
-      </li>
-    ))}
-  </ul>
+  <div class="index-layout">
+    <header>
+      <img src="/banner.png" alt="FunkyPosts" class="banner" />
+      <p class="tagline">Bridging object-oriented and functional thinking in C++.</p>
+    </header>
+    <ul>
+      {sorted.map((post) => (
+        <li>
+          <a href={`/posts/${post.id}/`}>{post.title}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
 </Base>
+
+<style>
+  .index-layout {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .banner {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+</style>

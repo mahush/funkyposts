@@ -15,8 +15,34 @@ const { Content } = await render(post);
 ---
 
 <Base title={post.id}>
-  <p><a href="/">← FunkyPosts</a></p>
-  <article>
-    <Content />
-  </article>
+  <div class="page">
+    <header>
+      <a href="/">
+        <img src="/banner.png" alt="FunkyPosts" class="banner" />
+      </a>
+    </header>
+    <main>
+      <article>
+        <Content />
+      </article>
+    </main>
+  </div>
 </Base>
+
+<style>
+  .page {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  header {
+    margin-bottom: 2rem;
+  }
+
+  .banner {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+</style>
