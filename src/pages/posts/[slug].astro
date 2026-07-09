@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import { postMetadata } from "../../post-metadata.ts";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
@@ -12,9 +13,11 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const title = post.body?.match(/^#\s+(.+)$/m)?.[1] ?? post.id;
+const description = postMetadata[post.id]?.description;
 ---
 
-<Base title={post.id}>
+<Base title={title} description={description}>
   <div class="page">
     <header>
       <a href="/">
