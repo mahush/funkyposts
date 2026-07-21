@@ -16,6 +16,7 @@ Posts are created with AI assistance for brainstorming and improving formulation
 - [Mastering State in Modern C++: Making It Explicit](posts/mastering-state-in-modern-cpp-making-it-explicit.md) — Passing state as data in the functional core–imperative shell
 - [Mastering State in Modern C++: Making It Encapsulated](posts/mastering-state-in-modern-cpp-making-it-encapsulated.md) — Explicit state with encapsulated meaning
 - [Mastering State in Modern C++: Making It Proteted](posts/mastering-state-in-modern-cpp-making-it-protected.md) — Explicit state with protected evolution
+- [Effects in Modern C++: Making Them Explicit](posts/effects-in-modern-cpp-making-them-explicit.md) — How to pull side effects out of your core logic
 
 ---
 Copyright © 2026 mahush. All rights reserved. No license granted.
