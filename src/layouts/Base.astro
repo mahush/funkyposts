@@ -5,6 +5,11 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+
+// Self-referencing canonical, derived from the configured `site` + current
+// path. Astro's directory build format keeps the trailing slash consistent
+// with internal links and sitemap entries.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <html lang="en">
@@ -13,6 +18,7 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css" />
     <script defer src="https://cloud.umami.is/script.js" data-website-id="8702b1d7-7035-437c-9334-8469ce2eed84"></script>
   </head>
