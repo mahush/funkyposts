@@ -1,5 +1,5 @@
 ---
-version: 1.1J
+version: 1.2J
 ---
 
 # Finding the Owners of Domain Meaning
@@ -46,19 +46,19 @@ The guiding question therefore changes. Instead of asking which class holds some
 
 ## The World and the Score
 
-In that history, the snake collects two food items on its way to the destination and arrives, and the order's 20 points are credited. Let us take a closer look at two of the owners involved: Arena and Game.
+In that history, the snake collects two food items on its way to the destination and arrives, and the order's 20 points are banked. Let us take a closer look at two of the owners involved: Arena and Game.
 
 **Arena** owns the world. Its domain state holds the board, the snakes, the food and each snake's executing order. That state means something to the product on its own: it is what happened on the board. It evolves step by step: orders activate, snakes move, collisions and collection are resolved, and orders complete. Within every step, the rules behind these changes, the rules for how the world may and may not evolve, have to stay coherent with one another. An order, for instance, completes only if its snake reaches the target and survives the step, so whether it completes depends on how that step's collisions turned out. Change how collisions are resolved, and what counts as a completion changes with it.
 
-**Game** owns the game's progress. Its domain state holds the credited points, the points still unbanked for an executing order, the elapsed time and, once the game is over, who won. That state, too, means something on its own: it is how the game stands. Its rules for how that state may and may not evolve are of a different kind, and they have to stay coherent among themselves in the same way. Points collected during an order wait for its outcome; the game ends when its time is up or no snake is alive. Because a step is scored before the game may end, an order that completes on the very last step still counts: when a step is scored and when the game ends have to be decided together.
+**Game** owns the game's progress. Its domain state holds the points each player has banked, the points still held for each executing order, the elapsed time and, once the game is over, who won. That state, too, means something on its own: it is how the game stands. Its rules for how that state may and may not evolve are of a different kind, and they have to stay coherent among themselves in the same way. Points collected during an order wait for its outcome; the game ends when its time is up or no snake is alive. Because a step is scored before the game may end, an order that completes on the very last step still counts: when a step is scored and when the game ends have to be decided together.
 
-That is why the product has two owners here: two independently meaningful domain states, each with rules that have to fit together, but not with the other's. You can see this by changing one set of rules: the other stays as it is. A different ending condition or banking rule (Game) would leave movement and collisions (Arena) untouched. A different collision rule (Arena) would change what happens on the board, and so which orders complete, but not how completed orders turn into points (Game). The same holds for checking them: a tester checking whether a collision was resolved correctly looks at the world; one checking whether points were credited correctly looks at the score.
+That is why the product has two owners here: two independently meaningful domain states, each with rules that have to fit together, but not with the other's. You can see this by changing one set of rules: the other stays as it is. A different ending condition or banking rule (Game) would leave movement and collisions (Arena) untouched. A different collision rule (Arena) would change what happens on the board, and so which orders complete, but not how completed orders turn into points (Game). The same holds for checking them: a tester checking whether a collision was resolved correctly looks at the world; one checking whether points were banked correctly looks at the score.
 
-The split between the two owners is easiest to see at the order's last step. The snake reaches the target and survives, so the order completes. That is a fact about the world, and Arena establishes it. That the order's 20 points are now banked is a second change, to the score, and that one is Game's: Game receives the completion as a fact and reacts with a transition of its own state, turning the unbanked points into credited ones. What looks like one event is two, kept apart deliberately because they change different domain states.
+The split between the two owners is easiest to see at the order's last step. The snake reaches the target and survives, so the order completes. That is a fact about the world, and Arena establishes it. That the order's 20 points are now banked is a second change, to the score, and that one is Game's: Game receives the completion as a fact and reacts with a transition of its own state, banking the points it held for the order. What looks like one event is two, kept apart deliberately because they change different domain states.
 
 ## Game's Public Contract, Executed
 
-The state and rules just described for Game are what its public contract makes executable. Only the functions of its [public contract](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/semantic_artifacts/include/orbital/game_authority.hpp) can create or change Game's state, and the header groups them the way the picture above does:
+The state and rules just described for Game are what its public contract makes executable. Only the functions of its [public contract](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/semantic_artifacts/include/orbital/game_authority.hpp) can create or change Game's state, and the header groups them the way the picture above does:
 
 ```cpp
 // Construction: establish a valid initial state from explicit setup
@@ -79,12 +79,12 @@ View view(const State& state);
 
 `observeStep` takes one step's facts from Arena and returns Game's new state, plus a `GameConcluded` intent when that step ends the game. The omitted transition serves a rule for a later post. What each event is worth, Game leaves to a stateless scoring rule, which we come back to at the end.
 
-Because the contract takes Arena's facts as plain values, Game can be executed on its own. One of its [tests](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/tests/test_orbital_game_authority.cpp#L193-L210):
+Because the contract takes Arena's facts as plain values, Game can be executed on its own. One of its [tests](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/tests/test_orbital_game_authority.cpp#L202-L219):
 
 ```cpp
 /// @brief The step due at the end of the game still counts, including a completion it brings
 TEST(OrbitalGameAuthority, BanksCompletionOnFinalStepBeforeConclusion) {
-  // Given: order F of A holds 20 unbanked points
+  // Given: order F of A holds 20 points
   auto [state, first] = game_authority::observeStep(
       runningGame(),
       milliseconds{1000},
@@ -97,7 +97,7 @@ TEST(OrbitalGameAuthority, BanksCompletionOnFinalStepBeforeConclusion) {
       state, std::chrono::minutes{2}, {}, {OrderEnded{OrderId{1}, EndReason::COMPLETED, std::nullopt}}, BOTH_ALIVE);
 
   // Then: A's 20 points count and A wins
-  EXPECT_EQ(game_authority::view(final_state).players.at(PLAYER_A).credited, 20);
+  EXPECT_EQ(game_authority::view(final_state).players.at(PLAYER_A).banked, 20);
   EXPECT_EQ(concluded->result, (Result{PlayerId{PLAYER_A}}));
 }
 ```
@@ -132,7 +132,7 @@ For a defect, the same property narrows the search. Game's transitions are deter
 
 Tests and delegated work follow the same ownership boundaries. A test of a single Authority, like that one, documents and guards that Authority's product rules in the narrowest possible scope. A task handed to a colleague or an AI agent can name the one owner it is allowed to change, and its review then knows which rules to check.
 
-This payoff has a price. Each owner adds a public contract that has to be designed and maintained. Behind that contract, each one must define a result for every input it can receive, including inputs the usual flow never produces; Game, for instance, defines that a step observed after the game has concluded changes nothing, and [a test](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/tests/test_orbital_game_authority.cpp#L240) pins that down. Price and payoff both come per owner, so dividing more finely is a trade-off rather than a rule. A separate owner spares its rules a second look whenever a neighboring rule changes, even if they themselves never change; in return, it adds one more contract. Where to stop is the judgment from earlier in this post: separate what means something on its own, and keep together what must fit together.
+This payoff has a price. Each owner adds a public contract that has to be designed and maintained. Behind that contract, each one must define a result for every input it can receive, including inputs the usual flow never produces; Game, for instance, defines that a step observed after the game has concluded changes nothing, and [a test](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/tests/test_orbital_game_authority.cpp#L249) pins that down. Price and payoff both come per owner, so dividing more finely is a trade-off rather than a rule. A separate owner spares its rules a second look whenever a neighboring rule changes, even if they themselves never change; in return, it adds one more contract. Where to stop is the judgment from earlier in this post: separate what means something on its own, and keep together what must fit together.
 
 A change, a review, a test, a defect search, a delegated task: each has a precise place to start, one Domain Authority, and that Authority's public contract marks where it may stop. What stays behind the contract stays local; what changes the contract reaches the owners that use it. That is what the abstraction adds: without it, the same rules would still exist, but nothing would mark where any of this starts or may stop.
 
