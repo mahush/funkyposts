@@ -1,5 +1,5 @@
 ---
-version: Y1.5
+version: Y1.6
 ---
 
 # When a Calculation Is a Product Decision
@@ -45,7 +45,7 @@ That is why the rule lives in Scoring Policy rather than in Game. Game still def
 
 ## A Rule You Can Call
 
-In code, the choices just described are what Scoring Policy's [public contract](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/semantic_artifacts/include/orbital/scoring_policy.hpp) declares:
+In code, the choices just described are what Scoring Policy's [public contract](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/semantic_artifacts/include/orbital/scoring_policy.hpp) declares:
 
 ```cpp
 constexpr int FOOD_POINTS = 10;  // During an order, held
@@ -67,7 +67,7 @@ Settlement settlementOf(EndReason reason);
 
 `effectsOf` takes an event Arena reports, such as a food collection, and returns its point effects. Each names a player and a number of points: a `Bank` adds them to the player's banked points at once, a `Hold` attaches them to an order until the order ends. `settlementOf` takes the reason an order ended and returns what happens to its held points: banked or dropped. Both forms from the definition are here: `FOOD_POINTS` is a constant, `settlementOf` a mapping. Nothing in this contract refers to a score. The Policy does not know how many points anyone has, and it has no way to change them.
 
-With facts in and answers out, both as plain values, the rule runs without anything around it. Here is one of its [tests](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/tests/test_orbital_scoring_policy.cpp#L81-L88):
+With facts in and answers out, both as plain values, the rule runs without anything around it. Here is one of its [tests](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/tests/test_orbital_scoring_policy.cpp#L81-L88):
 
 ```cpp
 /// @brief Held points count once the order actually completes
@@ -86,11 +86,11 @@ No Game is constructed and no score exists, and the assertion reads like the rul
 
 The scoring rule passed the independence test, but it came to that test already *meaningful* and *stateless*; the definition built both in. In other code neither can be taken for granted, and recognizing a Domain Policy means checking them too.
 
-Start with meaning. Plenty of stateless code is independent of an Authority's rules without being a choice the product cares about. Reading a snake's head off its body is one example: however it is written, no player would notice. This is where a calculation and a product decision part ways: a calculation is a product decision when a reasonable alternative would make the product behave differently. The form of the code is no guide. Writing [`settlementOf`](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/semantic_artifacts/src/orbital/scoring_policy.cpp#L36-L46) as a lookup table instead of a `switch` would change nothing for players, yet moving its single label `case EndReason::ROUND_ENDED:` from the cases that drop to the case that banks would let an order still executing when time runs out keep its points.
+Start with meaning. Plenty of stateless code is independent of an Authority's rules without being a choice the product cares about. Reading a snake's head off its body is one example: however it is written, no player would notice. This is where a calculation and a product decision part ways: a calculation is a product decision when a reasonable alternative would make the product behave differently. The form of the code is no guide. Writing [`settlementOf`](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/semantic_artifacts/src/orbital/scoring_policy.cpp#L36-L46) as a lookup table instead of a `switch` would change nothing for players, yet moving its single label `case EndReason::ROUND_ENDED:` from the cases that drop to the case that banks would let an order still executing when time runs out keep its points.
 
-Then state. Scoring Policy's contract refers to no score. Suppose it did: given the score and an event, the Policy returns the next score. Then it no longer only decides what food is worth; it defines how the score evolves, and that makes it an Authority, a second one for the score Game already owns. Game's rules from above, which must agree, would be split between two owners, and neither could keep them consistent alone. Defining how domain state may evolve is Authority work, however the code is labelled; holding that state or calling an Authority's transitions is not.
+Then state. Scoring Policy's contract refers to no score. Suppose it did: given the score and an event, the Policy returns the next score. Then it no longer only decides what food is worth; it defines how the score evolves, and that makes it an Authority, a second one for the score Game already owns. Game's rules from above, which must agree, would be split between two owners, and neither could keep them consistent alone. Establishing valid domain state or defining how it may evolve is Authority work, however the code is labelled; holding that state or calling an Authority's operations is not.
 
-To recognize a Domain Policy, then, ask three things of a calculation. Would a reasonable alternative change the product? If not, it stays a calculation. Does it define how domain state evolves? If so, it is Authority work. Must it agree with the rules of the state it is applied to? If so, it belongs to that state's Authority. A product decision that defines no evolution and need not agree is a Domain Policy, whether an Authority, setup code or another Policy asks it.
+To recognize a Domain Policy, then, ask three things of a calculation. Would a reasonable alternative change the product? If not, it stays a calculation. Does it establish valid domain state or define how it evolves? If so, it is Authority work. Must it agree with the rules of the state it is applied to? If so, it belongs to that state's Authority. A product decision that does neither and need not agree is a Domain Policy, whether an Authority, setup code or another Policy asks it.
 
 The questions leave one judgment open: how finely to divide. Scoring Policy keeps the worth of events and endings together, because the product discusses them together as scoring. A team could split them; each split adds a contract, so it pays off when the parts change for different reasons or are decided by different people.
 
@@ -102,7 +102,7 @@ Scoring Policy and Game meet only at the Policy's public contract, and that cont
 
 A changed value or mapping stays behind it. Both changes from earlier, fifteen points for food during an order and the moved `ROUND_ENDED` label, edit Scoring Policy alone, together with the expectations in its focused tests. Game's code stays as it is. Some of Game's tests would expect new numbers, since they run with the real Policy, but what they check does not change.
 
-A changed contract travels further. Suppose a third outcome joined banking and dropping: an order cut short keeps half of its held points. Scoring Policy can decide when that applies, but only Game can say what keeping half means for its score, so the change reaches Game: [`settleOrder`](https://github.com/mahush/funkysnakes/blob/361d026d0de76fabdd3b996b1b33bf2a7dc3b7a2/semantic_artifacts/src/orbital/game_authority.cpp#L16-L31), where Game applies the outcome, has to learn the new one. The previous post observed the same for Authorities: what changes behind a contract stays with its owner; what changes the contract reaches everyone who uses it.
+A changed contract travels further. Suppose a third outcome joined banking and dropping: an order cut short keeps half of its held points. Scoring Policy can decide when that applies, but only Game can say what keeping half means for its score, so the change reaches Game: [`settleOrder`](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/semantic_artifacts/src/orbital/game_authority.cpp#L17-L32), where Game applies the outcome, has to learn the new one. The previous post observed the same for Authorities: what changes behind a contract stays with its owner; what changes the contract reaches everyone who uses it.
 
 Review follows that line. The first post imagined a small pull request that changed whether points collected during an order count, and a reviewer left to reconstruct the rule from the code around it. In Orbital Orders, that pull request touches Scoring Policy, and its review turns on one question: is this how the game should score? As long as the Policy still answers within its contract, Game's rules need no second look; checking that contract is part of reviewing the Policy.
 
