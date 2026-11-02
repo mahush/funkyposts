@@ -1,7 +1,6 @@
 ---
-version: 1.2J
+version: 1.3J
 ---
-
 # Finding the Owners of Domain Meaning
 
 **How Ownership Boundaries Emerge from the Domain**
@@ -14,7 +13,7 @@ Orbital Orders gives us something concrete to examine. We have already met Order
 
 Part of the answer is already familiar from this blog. A [Protecting State Module](mastering-state-in-modern-cpp-making-it-protected.md) groups state with the only functions allowed to evolve it: other code may hold the state, pass it on and request its transitions, but only the module defines how the state may change. The [Encapsulating State Module](mastering-state-in-modern-cpp-making-it-encapsulated.md) complements it by localizing who interprets a state. Such modules pay off only where the meaning of state, or the rules for how it may and may not evolve, need an owner. When that state is domain state and its evolution needs an owner, Executable Semantic Architecture (ESA) calls that owner a Domain Authority.
 
-A **Domain Authority** owns the valid evolution of independently meaningful domain state. It establishes valid initial state, defines the transitions through which that state may change, and preserves the invariants that must hold across them. Other code may read what an Authority owns through its queries, and many places may request its transitions. Only the Authority defines what a valid change is.
+A **Domain Authority** owns the valid evolution of independently meaningful domain state. It turns the setup it is given into valid initial state, defines the transitions through which that state may change, and preserves the invariants that must hold across them. Other code may read what an Authority owns through its queries, and many places may request its transitions. Only the Authority defines what a valid change is.
 
 Here is the picture in a visual nutshell:
 
@@ -76,6 +75,8 @@ std::tuple<State, std::optional<GameConcluded>> observeStep(State state,
 bool isRunning(const State& state);
 View view(const State& state);
 ```
+
+`startRound` is the construction. It does not decide who plays; the players arrive as setup. What Game decides is what a valid start is: each of them with nothing banked, no points held, and the game running. Choosing a start and making it valid are different jobs, and only the second is Game's.
 
 `observeStep` takes one step's facts from Arena and returns Game's new state, plus a `GameConcluded` intent when that step ends the game. The omitted transition serves a rule for a later post. What each event is worth, Game leaves to a stateless scoring rule, which we come back to at the end.
 
