@@ -1,7 +1,6 @@
 ---
-version: Y1.6
+version: Y1.7
 ---
-
 # When a Calculation Is a Product Decision
 
 **Giving Stateless Domain Rules an Explicit Home**
@@ -29,9 +28,9 @@ Choice -->|"answers to build on"| Other["another Domain Policy"]
 Choice -->|"answers, passed on"| Composition["composition code"]
 ```
 
-Building a Domain Policy takes nothing new: constants and pure functions will do. Where an answer tells someone else what to do, such as holding ten points for an order, handing it over as a value instead of acting on it is the familiar idea behind the Command pattern. The new part is the guiding question, the counterpart of the previous post's: *who owns this meaningful stateless choice?* Where only setup code, composition or other Policies use the choice, the answer is plain: it keeps no state, so it needs no Authority, and a Policy owns it. It is less obvious when an Authority applies the choice to its own state, as Game applies the scoring rule, because keeping the choice inside the Authority then seems natural.
+Building a Domain Policy takes nothing new: constants and pure functions will do. Where an answer tells someone else what to do, such as holding ten points for an order, handing it over as a value instead of acting on it is the familiar idea behind the Command pattern. The new part is the guiding question, the counterpart of the previous post's: *who owns this meaningful stateless choice?* As long as no Authority applies the choice to its own state, the answer is plain: a Policy owns it. It is less obvious when one does, as Game applies the scoring rule in its transitions, or Arena applies the board setup when constructing its state, because keeping the choice inside that Authority then seems natural.
 
-For that case the criterion is **independence**, the same one by which the previous post separated owners: if the choice need not agree with the Authority's rules for evolving its state, it belongs in a Domain Policy. A sign of this is that each can change without the other. The next section puts the scoring rule to that test.
+For that case the criterion is **independence**, the same one by which the previous post separated owners: if the choice need not agree with the Authority's rules for its state, it belongs in a Domain Policy. A sign of this is that each can change without the other. The next section puts the scoring rule to that test.
 
 ## Untangling a Policy from an Authority
 
@@ -42,6 +41,8 @@ Now the Policy. Orbital Orders gives the scoring rule to **Scoring Policy**, and
 Vary either side and this becomes visible. Make food during an order worth fifteen points, the alternative from the beginning, or let an order still executing when time runs out keep its points. Players would notice, but Game's rules would read exactly as before: points would still be held per order, banked or dropped once, and applied before the end is checked. Turn it around and change one of Game's rules, say the sequence in which it applies what just happened and checks for the end, and Scoring Policy's values and mapping are untouched.
 
 That is why the rule lives in Scoring Policy rather than in Game. Game still defines how the score evolves and applies Scoring Policy's answers in its transitions, but which answers those are is not Game's to say.
+
+The same split applies when an Authority uses a choice to construct its state rather than to evolve it. [Board Setup Policy](https://github.com/mahush/funkysnakes/blob/99f35be5566f9f506f1b78490ecf8c45b6e9d67d/semantic_artifacts/include/orbital/board_setup_policy.hpp) chooses the board's size and where each snake starts on it. Arena places the snakes and refuses a layout in which one leaves the board or two overlap. Choosing what the initial state is made of is the Policy's; making it valid is the Authority's.
 
 ## A Rule You Can Call
 
@@ -65,7 +66,7 @@ std::vector<PointEffect> effectsOf(const ArenaEvent& event);
 Settlement settlementOf(EndReason reason);
 ```
 
-`effectsOf` takes an event Arena reports, such as a food collection, and returns its point effects. Each names a player and a number of points: a `Bank` adds them to the player's banked points at once, a `Hold` attaches them to an order until the order ends. `settlementOf` takes the reason an order ended and returns what happens to its held points: banked or dropped. Both forms from the definition are here: `FOOD_POINTS` is a constant, `settlementOf` a mapping. Nothing in this contract refers to a score. The Policy does not know how many points anyone has, and it has no way to change them.
+`effectsOf` takes an event Arena reports, such as a food collection, and returns its point effects. Each names a player and a number of points: a `Bank` adds them to the player's banked points at once, a `Hold` attaches them to an order until the order ends. `settlementOf` takes the reason an order ended and returns what happens to its held points: banked or dropped. Both forms from the definition are here: `FOOD_POINTS` is a constant, `settlementOf` a mapping. Nothing in this contract refers to the current score. The Policy does not know how many points anyone has, and it has no way to change them.
 
 With facts in and answers out, both as plain values, the rule runs without anything around it. Here is one of its [tests](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/tests/test_orbital_scoring_policy.cpp#L81-L88):
 
@@ -88,11 +89,11 @@ The scoring rule passed the independence test, but it came to that test already 
 
 Start with meaning. Plenty of stateless code is independent of an Authority's rules without being a choice the product cares about. Reading a snake's head off its body is one example: however it is written, no player would notice. This is where a calculation and a product decision part ways: a calculation is a product decision when a reasonable alternative would make the product behave differently. The form of the code is no guide. Writing [`settlementOf`](https://github.com/mahush/funkysnakes/blob/c8a6f8a746d236a135156cde1589d7f415434cf8/semantic_artifacts/src/orbital/scoring_policy.cpp#L36-L46) as a lookup table instead of a `switch` would change nothing for players, yet moving its single label `case EndReason::ROUND_ENDED:` from the cases that drop to the case that banks would let an order still executing when time runs out keep its points.
 
-Then state. Scoring Policy's contract refers to no score. Suppose it did: given the score and an event, the Policy returns the next score. Then it no longer only decides what food is worth; it defines how the score evolves, and that makes it an Authority, a second one for the score Game already owns. Game's rules from above, which must agree, would be split between two owners, and neither could keep them consistent alone. Establishing valid domain state or defining how it may evolve is Authority work, however the code is labelled; holding that state or calling an Authority's operations is not.
+Then state. Scoring Policy's contract never sees how many points anyone has. Suppose it did: given the current score and an event, the Policy returns the next one. Then it no longer only decides what food is worth; it defines how the score evolves, and that makes it an Authority, a second one for the score Game already owns. Game's rules from above, which must agree, would be split between two owners, and neither could keep them consistent alone. Establishing valid domain state or defining how it may evolve is Authority work, however the code is labelled; choosing its initial values, holding it or calling an Authority's operations is not.
 
 To recognize a Domain Policy, then, ask three things of a calculation. Would a reasonable alternative change the product? If not, it stays a calculation. Does it establish valid domain state or define how it evolves? If so, it is Authority work. Must it agree with the rules of the state it is applied to? If so, it belongs to that state's Authority. A product decision that does neither and need not agree is a Domain Policy, whether an Authority, setup code or another Policy asks it.
 
-The questions leave one judgment open: how finely to divide. Scoring Policy keeps the worth of events and endings together, because the product discusses them together as scoring. A team could split them; each split adds a contract, so it pays off when the parts change for different reasons or are decided by different people.
+The questions leave one judgment open: how finely to divide. One limit holds, though: choices that must agree with each other belong to one Policy, just as rules that must stay coherent belong to one Authority. The board and the start layout must fit, so Board Setup Policy keeps them together; split into two Policies, the fit would be stated by neither, and only Arena's refusal would reveal a mismatch. Choices that need not agree may stay together or be split. Scoring Policy keeps the worth of events and endings together because the product discusses them together as scoring. A team could split them; each split adds a contract, so it pays off when the parts change for different reasons or are decided by different people.
 
 Domain-Driven Design has a close relative. Eric Evans brings the Strategy pattern into the domain model as *Strategy (a.k.a. Policy)* (*Domain-Driven Design*, 2003, chapter 12): the varying part of a process is factored out, and a rule is kept apart from the behavior it governs. Evans stresses that in the domain the pattern's value lies in making a process or policy concept explicit, not only in swapping implementations, which brings it close to a Policy and the Authority that applies it. What earns the separation differs, though. Strategy is still built around variants of a process; a Domain Policy is earned by ownership: a choice the product could make differently, even if only one version ever exists. That is why a single constant can be a Domain Policy without calling for a Strategy.
 
