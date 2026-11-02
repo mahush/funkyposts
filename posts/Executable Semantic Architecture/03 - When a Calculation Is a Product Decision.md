@@ -1,5 +1,5 @@
 ---
-version: Y1.7
+version: Y1.8
 ---
 # When a Calculation Is a Product Decision
 
@@ -15,15 +15,14 @@ Yet applying a rule is not the same as owning it. Game applies the scoring rule,
 
 Let’s look at what the scoring rule does. Given that food was collected during an order, it answers that ten points are held for that order, and Game applies that answer to its score. The rule decides; Game acts. ESA calls the owner of such a rule a Domain Policy.
 
-A **Domain Policy** owns a meaningful stateless choice of the domain: constants, such as what food is worth, or mappings from facts to answers, such as what an order's ending means for the points it holds. It keeps no domain state and evolves none. Whoever needs the choice asks the Policy and uses the answer: an Authority applies it in a transition, setup code takes initial values from it, another Policy builds its own answer on it, and the code that composes the domain's owners passes it on to the owner that acts on it.
+A **Domain Policy** owns a meaningful stateless choice of the domain: constants, such as what food is worth, or mappings from facts to answers, such as what an order's ending means for the points it holds. It keeps no domain state and evolves none. Whoever needs the choice asks the Policy and uses the answer: an Authority applies it when it constructs or evolves its state, another Policy builds its own answer on it, and the code that composes the domain's owners passes it on to the owner that acts on it.
 
 ```mermaid
 flowchart LR
 subgraph Policy["Domain Policy"]
     Choice["constants and mappings:<br/>meaningful stateless choice"]
 end
-Choice -->|"answers, applied<br/>in transitions"| Authority["Domain Authority"]
-Choice -->|"initial values"| Setup["setup code"]
+Choice -->|"answers, applied in<br/>construction and transitions"| Authority["Domain Authority"]
 Choice -->|"answers to build on"| Other["another Domain Policy"]
 Choice -->|"answers, passed on"| Composition["composition code"]
 ```
@@ -42,7 +41,7 @@ Vary either side and this becomes visible. Make food during an order worth fifte
 
 That is why the rule lives in Scoring Policy rather than in Game. Game still defines how the score evolves and applies Scoring Policy's answers in its transitions, but which answers those are is not Game's to say.
 
-The same split applies when an Authority uses a choice to construct its state rather than to evolve it. [Board Setup Policy](https://github.com/mahush/funkysnakes/blob/99f35be5566f9f506f1b78490ecf8c45b6e9d67d/semantic_artifacts/include/orbital/board_setup_policy.hpp) chooses the board's size and where each snake starts on it. Arena places the snakes and refuses a layout in which one leaves the board or two overlap. Choosing what the initial state is made of is the Policy's; making it valid is the Authority's.
+The same split applies when an Authority uses a choice to construct its state rather than to evolve it. [Board Setup Policy](https://github.com/mahush/funkysnakes/blob/ab865c7571d15914bba4361fdace0e0dd0b8c0ff/semantic_artifacts/include/orbital/board_setup_policy.hpp) chooses the board's size and where each snake starts on it. Arena places the snakes and refuses a layout in which one leaves the board or two overlap. Choosing what the initial state is made of is the Policy's; making it valid is the Authority's.
 
 ## A Rule You Can Call
 
@@ -91,7 +90,7 @@ Start with meaning. Plenty of stateless code is independent of an Authority's ru
 
 Then state. Scoring Policy's contract never sees how many points anyone has. Suppose it did: given the current score and an event, the Policy returns the next one. Then it no longer only decides what food is worth; it defines how the score evolves, and that makes it an Authority, a second one for the score Game already owns. Game's rules from above, which must agree, would be split between two owners, and neither could keep them consistent alone. Establishing valid domain state or defining how it may evolve is Authority work, however the code is labelled; choosing its initial values, holding it or calling an Authority's operations is not.
 
-To recognize a Domain Policy, then, ask three things of a calculation. Would a reasonable alternative change the product? If not, it stays a calculation. Does it establish valid domain state or define how it evolves? If so, it is Authority work. Must it agree with the rules of the state it is applied to? If so, it belongs to that state's Authority. A product decision that does neither and need not agree is a Domain Policy, whether an Authority, setup code or another Policy asks it.
+To recognize a Domain Policy, then, ask three things of a calculation. Would a reasonable alternative change the product? If not, it stays a calculation. Does it establish valid domain state or define how it evolves? If so, it is Authority work. Must it agree with the rules of the state it is applied to? If so, it belongs to that state's Authority. A product decision that does neither and need not agree is a Domain Policy, whether an Authority, composition code or another Policy asks it.
 
 The questions leave one judgment open: how finely to divide. One limit holds, though: choices that must agree with each other belong to one Policy, just as rules that must stay coherent belong to one Authority. The board and the start layout must fit, so Board Setup Policy keeps them together; split into two Policies, the fit would be stated by neither, and only Arena's refusal would reveal a mismatch. Choices that need not agree may stay together or be split. Scoring Policy keeps the worth of events and endings together because the product discusses them together as scoring. A team could split them; each split adds a contract, so it pays off when the parts change for different reasons or are decided by different people.
 
